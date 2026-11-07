@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tannery Lab — Subtractive Dye Matcher & Drum Recipe Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        mud: {
+                            50: '#f6f5f2',
+                            100: '#e7e4dd',
+                            200: '#d0cabd',
+                            300: '#b4ab97',
+                            400: '#988b78',
+                            500: '#827564',
+                            600: '#6e6254',
+                            700: '#594f44',
+                            800: '#4a423a',
+                            900: '#3f3832',
+                            950: '#24201c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #161412;
+            color: #f3f1ed;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #24201c;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #594f44;
+            border-radius: 3px;
+        }
+        canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-card {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
+            .print-text-dark {
+                color: #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased selection:bg-amber-600 selection:text-white pb-16">
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-[#1e1b18]/95 backdrop-blur-md border-b border-mud-800 px-4 py-3 no-print">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-stone-700 flex items-center justify-center shadow-inner border border-amber-500/30">
+                    <svg class="w-6 h-6 text-amber-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2">
+                        TANNERY DRUM LAB
+                        <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Wet-End v2.4</span>
+                    </h1>
+                    <p class="text-xs text-stone-400">Subtractive Suede/Nappa Dye Matcher & Cold-Water Drum Calculator</p>
+                </div>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div class="flex items-center gap-2">
+                <button onclick="loadSavedModal()" class="px-3 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium border border-stone-700 flex items-center gap-1.5 transition">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                    <span>Saved Lots (<span id="savedCount">0</span>)</span>
+                </button>
+                <button onclick="copyWhatsAppSummary()" class="px-3 py-2 rounded-lg bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 text-xs font-semibold border border-emerald-600/50 flex items-center gap-1.5 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Copy WhatsApp Card</span>
+                </button>
+                <button onclick="window.print()" class="px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-stone-950 text-xs font-bold flex items-center gap-1.5 transition shadow">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span class="hidden sm:inline">Print Job Sheet</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Banner -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-stone-900 border border-amber-500 text-stone-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+        <span id="toastMsg">Copied to clipboard!</span>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 pt-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: Photo Sampler + Color Axis + Dye Engine (5 cols) -->
+        <div class="lg:col-span-5 space-y-6 no-print">
+
+            <!-- 1. Interactive Suede Swatch & Crust Sampler -->
+            <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                            <span>1. Optical Crust & Swatch Sampler</span>
+                        </h2>
+                        <p class="text-xs text-stone-400">Upload a photo or tap the canvas to average 5×5 suede nap pixels</p>
+                    </div>
+                    <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-600 text-xs font-semibold text-stone-200 flex items-center gap-1.5 transition">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Upload Photo</span>
+                        <input type="file" id="imageLoader" accept="image/*" class="hidden">
+                    </label>
+                </div>
+
+                <!-- Mode Selector Toggle -->
+                <div class="grid grid-cols-2 gap-2 p-1 bg-stone-900 rounded-xl mb-3 border border-stone-800">
+                    <button id="modeBaseBtn" onclick="setSampleMode('base')" class="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition bg-amber-600 text-stone-950 shadow">
+                        <span class="w-3 h-3 rounded-full border border-black" id="baseDotIndicator" style="background-color: #6B7048;"></span>
+                        <span>Pick Base Skin / Crust</span>
+                    </button>
+                    <button id="modeTargetBtn" onclick="setSampleMode('target')" class="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition text-stone-300 hover:text-white">
+                        <span class="w-3 h-3 rounded-full border border-white/40" id="targetDotIndicator" style="background-color: #827564;"></span>
+                        <span>Pick Target Swatch</span>
+                    </button>
+                </div>
+
+                <!-- Interactive Canvas Container -->
+                <div class="relative w-full h-56 rounded-xl overflow-hidden border border-stone-700 bg-stone-950 mb-3">
+                    <canvas id="swatchCanvas" class="w-full h-full block"></canvas>
+                    <div id="canvasHint" class="pointer-events-none absolute bottom-2 left-2 right-2 bg-black/75 backdrop-blur-sm px-2.5 py-1.5 rounded-lg text-[11px] text-stone-300 flex items-center justify-between">
+                        <span>Tap anywhere on canvas to sample <strong id="activeModeLabel" class="text-amber-400">Base Skin Color</strong></span>
+                        <span class="font-mono text-stone-400">5×5 Nap Avg</span>
+                    </div>
+                </div>
+
+                <!-- Quick Presets from User's Actual Case -->
+                <div class="mb-4">
+                    <div class="text-[11px] font-semibold uppercase tracking-wider text-stone-400 mb-1.5">Quick Case Presets (Click to Load Scenario):</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                        <button onclick="applyScenario('#6B7048', '#827564', 'redye', 'already_dyed')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-amber-500/40 transition">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#6B7048"></span>
+                                <span class="text-stone-400 text-[10px]">→</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
+                            </div>
+                            <div class="text-[11px] font-bold text-amber-300 leading-tight">Mehendi → Mud Olive</div>
+                            <div class="text-[10px] text-stone-400">Re-dye Green Base</div>
+                        </button>
+
+                        <button onclick="applyScenario('#878076', '#827564', 'redye', 'already_dyed')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#878076"></span>
+                                <span class="text-stone-400 text-[10px]">→</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
+                            </div>
+                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Rounded Trial → Master</div>
+                            <div class="text-[10px] text-stone-400">Fix Ashy Green+Black</div>
+                        </button>
+
+                        <button onclick="applyScenario('#C4A482', '#827564', 'suede_ei', 'ei_crust')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#C4A482"></span>
+                                <span class="text-stone-400 text-[10px]">→</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
+                            </div>
+                            <div class="text-[11px] font-bold text-stone-200 leading-tight">EI Crust → Mud Olive</div>
+                            <div class="text-[10px] text-stone-400">Kill Wattle Redness</div>
+                        </button>
+
+                        <button onclick="applyScenario('#9A7B64', '#827564', 'redye', 'already_dyed')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#9A7B64"></span>
+                                <span class="text-stone-400 text-[10px]">→</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
+                            </div>
+                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Warm Patchy → Mud</div>
+                            <div class="text-[10px] text-stone-400">Counter Red Center</div>
+                        </button>
+
+                        <button onclick="applyScenario('#B8C9D4', '#584438', 'suede_fc', 'wet_blue')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#B8C9D4"></span>
+                                <span class="text-stone-400 text-[10px]">→</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#584438"></span>
+                            </div>
+                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Wet-Blue → Snuff Suede</div>
+                            <div class="text-[10px] text-stone-400">Full-Chrome Deep Brown</div>
+                        </button>
+
+                        <button onclick="applyScenario('#D8CEBE', '#3B4236', 'nubuck', 'white_crust')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#D8CEBE"></span>
+                                <span class="text-stone-400 text-[10px]">→</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#3B4236"></span>
+                            </div>
+                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Crust → Loden Olive</div>
+                            <div class="text-[10px] text-stone-400">Shoe Nubuck Drum</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dual Color Swatch Cards & Manual Pickers -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Base Crust Card -->
+                    <div class="p-3 rounded-xl bg-stone-900 border border-stone-700">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[11px] font-bold uppercase text-stone-400">Starting Base Skin</span>
+                            <input type="color" id="baseColorPicker" value="#6B7048" onchange="updateFromPicker('base', this.value)" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <div id="baseSwatchBox" class="w-12 h-12 rounded-lg border border-white/20 shadow-inner shrink-0" style="background-color: #6B7048;"></div>
+                            <div class="min-w-0">
+                                <input type="text" id="baseHexInput" value="#6B7048" onchange="updateFromHexInput('base', this.value)" class="w-full bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs font-mono font-bold text-stone-100 uppercase">
+                                <div id="baseColorName" class="text-[11px] text-amber-400 truncate mt-1 font-medium">Mehendi Olive Base</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Swatch Card -->
+                    <div class="p-3 rounded-xl bg-stone-900 border border-stone-700">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[11px] font-bold uppercase text-stone-400">Target Buyer Swatch</span>
+                            <input type="color" id="targetColorPicker" value="#827564" onchange="updateFromPicker('target', this.value)" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <div id="targetSwatchBox" class="w-12 h-12 rounded-lg border border-white/20 shadow-inner shrink-0" style="background-color: #827564;"></div>
+                            <div class="min-w-0">
+                                <input type="text" id="targetHexInput" value="#827564" onchange="updateFromHexInput('target', this.value)" class="w-full bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs font-mono font-bold text-stone-100 uppercase">
+                                <div id="targetColorName" class="text-[11px] text-emerald-400 truncate mt-1 font-medium">Warm Mud / Fango</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color Axis Shift Diagnostics (CIELAB Delta Readout) -->
+                <div class="mt-4 p-3 rounded-xl bg-stone-950 border border-stone-800 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-stone-300">Optical Color Axis Shift (Base → Target)</span>
+                        <span id="deltaEBadge" class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">ΔE: 14.2</span>
+                    </div>
+
+                    <!-- Red/Green Axis -->
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-emerald-400 font-medium">← Add Green (Kill Red)</span>
+                            <span id="rgShiftText" class="font-mono text-stone-200">Needs +Warm Red-Brown</span>
+                            <span class="text-rose-400 font-medium">Add Red/Warmth →</span>
+                        </div>
+                        <div class="w-full h-2 bg-gradient-to-r from-emerald-600 via-stone-700 to-rose-600 rounded-full relative">
+                            <div id="rgMarker" class="w-3.5 h-3.5 rounded-full bg-white border-2 border-stone-950 shadow absolute -top-0.5 transition-all" style="left: 65%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Yellow/Blue-Grey Axis -->
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-sky-400 font-medium">← Add Blue-Grey / Ash</span>
+                            <span id="ybShiftText" class="font-mono text-stone-200">Needs +Grey / Mute Yellow</span>
+                            <span class="text-amber-400 font-medium">Add Yellow / Ochre →</span>
+                        </div>
+                        <div class="w-full h-2 bg-gradient-to-r from-sky-600 via-stone-700 to-amber-500 rounded-full relative">
+                            <div id="ybMarker" class="w-3.5 h-3.5 rounded-full bg-white border-2 border-stone-950 shadow absolute -top-0.5 transition-all" style="left: 35%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Lightness / Depth Axis -->
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-stone-400 font-medium">← Darker (Add Depth/Oil)</span>
+                            <span id="lShiftText" class="font-mono text-stone-200">Depth Adjustment</span>
+                            <span class="text-stone-200 font-medium">Strip Surface First →</span>
+                        </div>
+                        <div class="w-full h-2 bg-gradient-to-r from-stone-900 via-stone-500 to-stone-100 rounded-full relative">
+                            <div id="lMarker" class="w-3.5 h-3.5 rounded-full bg-amber-400 border-2 border-stone-950 shadow absolute -top-0.5 transition-all" style="left: 50%;"></div>
+                        </div>
+                    </div>
+
+                    <p id="axisDiagnosisText" class="text-xs text-stone-300 bg-stone-900/90 p-2.5 rounded-lg border border-stone-800 leading-relaxed"></p>
+                </div>
+            </section>
+
+            <!-- 2. Tannery Store Room Subtractive Dye Inventory -->
+            <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">2. Store Room Dye Stock & Total %</h2>
+                        <p class="text-xs text-stone-400">Uncheck any dye you don't have; recipe auto-rebalances</p>
+                    </div>
+                </div>
+
+                <!-- Total Dye % Slider -->
+                <div class="p-3 rounded-xl bg-stone-900 border border-stone-800 mb-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-semibold text-stone-200">Total Dye Offer (% on Crust Weight):</label>
+                        <div class="flex items-center gap-2">
+                            <span id="totalDyePctDisplay" class="font-mono text-sm font-bold text-amber-400">1.20%</span>
+                            <button onclick="autoSuggestDyePct()" class="text-[10px] px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700">Auto-Set</button>
+                        </div>
+                    </div>
+                    <input type="range" id="totalDyeSlider" min="0.2" max="4.5" step="0.05" value="1.20" oninput="onTotalDyeChange(this.value)" class="w-full accent-amber-500 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-stone-400 font-mono">
+                        <span>0.2% (Light Top-Up)</span>
+                        <span>2.2% (Full Shade)</span>
+                        <span>4.5% (Deep Suede)</span>
+                    </div>
+                </div>
+
+                <!-- Available Dyes Checklist -->
+                <div id="dyeStockList" class="space-y-2">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- Cold Water Black Warning Box -->
+                <div id="blackWarningBox" class="hidden mt-3 p-3 rounded-xl bg-amber-950/60 border border-amber-600/50 text-xs text-amber-200 space-y-1">
+                    <div class="font-bold text-amber-400 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Cold-Water Black Dye Tip-Loading Alert</span>
+                    </div>
+                    <p class="text-[11px] leading-relaxed text-amber-100/90">
+                        In normal ambient water (25–30°C), high-molecular-weight <strong>Black dye</strong> strikes the outer suede nap tips and creates a cloudy charcoal frostiness. Keep Black below 30% of the mix, add <strong>Havana/Medium Brown</strong> to warm the core, or enable <strong>Neutral Grey</strong> above.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN: Process Parameters + Complete Drum Operator Sheet (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+
+            <!-- 3. Drum Process Configuration Controls -->
+            <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 shadow-xl no-print">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 mb-3">3. Article, Substrate & Drum Batch Setup</h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                    <!-- Article Type -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-300 mb-1">Target Article Type</label>
+                        <select id="articleSelect" onchange="recalculateAll()" class="w-full rounded-xl bg-stone-900 border border-stone-700 px-3 py-2.5 text-xs font-semibold text-stone-100 focus:outline-none focus:border-amber-500">
+                            <option value="redye">Re-Dye / Shade Correction (Already Dyed Suede)</option>
+                            <option value="suede_ei">Garment / Shoe Suede (From EI Semi-Chrome Crust)</option>
+                            <option value="suede_fc">Full-Chrome Goat / Sheep Suede (From Crust/Wet-Blue)</option>
+                            <option value="nappa">Garment / Gloving Nappa (Soft Grain)</option>
+                            <option value="nubuck">Shoe / Bag Nubuck (Tight Velvet Nap)</option>
+                        </select>
+                    </div>
+
+                    <!-- Starting Substrate -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-300 mb-1">Starting Leather Base</label>
+                        <select id="substrateSelect" onchange="recalculateAll()" class="w-full rounded-xl bg-stone-900 border border-stone-700 px-3 py-2.5 text-xs font-semibold text-stone-100 focus:outline-none focus:border-amber-500">
+                            <option value="already_dyed">Already Dyed Skin (e.g. Mehendi / Odd Lot)</option>
+                            <option value="ei_crust">EI Semi-Chrome Crust (Wattle/Bark Base)</option>
+                            <option value="wet_blue">Shaved Wet-Blue (Chrome Tanned)</option>
+                            <option value="white_crust">Neutral / Buff Syntan Crust</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Water Temperature Mode -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-300 mb-1">Drum Water Temp Mode</label>
+                        <select id="waterTempSelect" onchange="recalculateAll()" class="w-full rounded-xl bg-amber-950/60 border border-amber-500/60 px-3 py-2.5 text-xs font-bold text-amber-200 focus:outline-none">
+                            <option value="ambient">100% Normal Water (25–30°C)</option>
+                            <option value="warm">Warm / Heated Float (40–50°C)</option>
+                        </select>
+                    </div>
+
+                    <!-- Lot Weight (kg) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-300 mb-1">Lot Weight (kg Dry/Shaved)</label>
+                        <div class="relative">
+                            <input type="number" id="lotWeightInput" value="50" min="0.5" step="0.5" oninput="recalculateAll()" class="w-full rounded-xl bg-stone-900 border border-stone-700 px-3 py-2 text-sm font-mono font-bold text-amber-400 focus:outline-none focus:border-amber-500">
+                            <span class="absolute right-3 top-2.5 text-xs font-mono text-stone-400">kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Pieces Count + Save Button -->
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-300 mb-1">No. of Skins / Pieces</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="skinCountInput" value="120" min="1" step="1" oninput="recalculateAll()" class="w-full rounded-xl bg-stone-900 border border-stone-700 px-3 py-2 text-sm font-mono font-bold text-stone-100 focus:outline-none focus:border-amber-500">
+                            <button onclick="saveCurrentRecipe()" title="Save Lot to Browser" class="px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-xs shrink-0 transition">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. MASTER DYE COMBINATION CARD & SIMULATED RESULT -->
+            <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 sm:p-5 shadow-xl print-card">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-stone-800">
+                    <div>
+                        <span class="text-[11px] font-mono uppercase text-amber-400 font-semibold">Exact Subtractive Dye Combination</span>
+                        <h3 class="text-base sm:text-lg font-extrabold text-stone-100 print-text-dark" id="sheetTitle">
+                            Mud Olive Suede — Drum Dyeing Formula
+                        </h3>
+                    </div>
+                    <div class="flex items-center gap-3 bg-stone-900 px-3 py-2 rounded-xl border border-stone-800">
+                        <div class="text-right">
+                            <div class="text-[10px] uppercase text-stone-400">Predicted Match</div>
+                            <div id="matchAccuracyLabel" class="text-xs font-mono font-bold text-emerald-400">96.4% Match</div>
+                        </div>
+                        <div class="flex items-center">
+                            <div id="simStartBox" class="w-7 h-9 rounded-l-lg border border-white/20" title="Starting Base"></div>
+                            <div id="simResultBox" class="w-9 h-9 border-y border-white/20" title="Predicted Dyed Result"></div>
+                            <div id="simTargetBox" class="w-9 h-9 rounded-r-lg border border-white/20" title="Buyer Target Swatch"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculated Dye Table -->
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-stone-800 text-[11px] uppercase text-stone-400 font-mono">
+                                <th class="py-2 pr-2">Dye Component</th>
+                                <th class="py-2 px-2">Role in Shade</th>
+                                <th class="py-2 px-2 text-right">Mix Ratio</th>
+                                <th class="py-2 px-2 text-right">% on Weight</th>
+                                <th class="py-2 pl-2 text-right text-amber-400">Exact Grams (g)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dyeFormulaTableBody" class="divide-y divide-stone-800/70 text-xs">
+                            <!-- Filled by JS -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t-2 border-stone-700 font-mono font-bold text-sm text-stone-100">
+                                <td colspan="2" class="py-2.5 pr-2">TOTAL DYE COMBINATION</td>
+                                <td class="py-2.5 px-2 text-right">100%</td>
+                                <td id="tableTotalPct" class="py-2.5 px-2 text-right text-amber-400">1.20%</td>
+                                <td id="tableTotalGrams" class="py-2.5 pl-2 text-right text-amber-400 text-base">600 g</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Bucket Pre-Dissolving Box -->
+                <div class="p-3 rounded-xl bg-stone-900/90 border border-stone-700/80 text-xs text-stone-300 flex items-start gap-2.5">
+                    <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <div id="dyeDissolveNote" class="leading-relaxed"></div>
+                </div>
+            </section>
+
+            <!-- 5. STEP-BY-STEP DRUM OPERATOR SHEET -->
+            <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 sm:p-5 shadow-xl print-card">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-stone-800">
+                    <div>
+                        <span class="text-[11px] font-mono uppercase text-amber-400 font-semibold">Complete Wet-End Sequence</span>
+                        <h3 class="text-base sm:text-lg font-extrabold text-stone-100 print-text-dark">
+                            Step-by-Step Drum Operator Sheet
+                        </h3>
+                    </div>
+                    <div id="batchMetaSummary" class="text-xs font-mono bg-stone-900 px-3 py-1.5 rounded-lg border border-stone-800 text-stone-300">
+                        50 kg | 120 Skins | 25–30°C Normal Water
+                    </div>
+                </div>
+
+                <!-- Dynamic Drum Stages Container -->
+                <div id="drumStagesContainer" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Saved Lots Modal -->
+    <div id="savedModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+        <div class="bg-[#211e1b] border border-stone-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-stone-800">
+                <h3 class="text-base font-bold text-stone-100">Saved Tannery Drum Lots</h3>
+                <button onclick="closeSavedModal()" class="text-stone-400 hover:text-white text-sm font-bold px-2 py-1">✕</button>
+            </div>
+            <div id="savedLotsList" class="space-y-2.5 max-h-80 overflow-y-auto custom-scroll"></div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. STATE & TANNERY DYE STORE ROOM DATABASE
+        // =========================================================================
+        let sampleMode = 'base'; // 'base' or 'target'
+        let baseHex = '#6B7048';   // Default: User's Mehendi Green already-dyed skin
+        let targetHex = '#827564'; // Default: User's Master Mud Olive Swatch
+        let uploadedImage = null;
+
+        // Commercial Leather Acid / 1:2 Metal-Complex Dyes with Subtractive Color Vectors
+        const DYE_CATALOG = [
+            {
+                id: 'olive_green',
+                name: 'Acid / Metal-Complex Olive Green',
+                shortName: 'Olive / Dark Green',
+                hex: '#4A5D36',
+                enabled: true,
+                role: 'Kills EI/Wattle redness & builds earthy khaki-mud core'
+            },
+            {
+                id: 'neutral_grey',
+                name: 'Neutral / Bluish Grey (Acid Grey BL)',
+                shortName: 'Neutral Grey',
+                hex: '#686D70',
+                enabled: true,
+                role: 'Flattens chroma cleanly without cold-water tip blotching'
+            },
+            {
+                id: 'acid_black',
+                name: 'Acid / Pre-Metallized Black',
+                shortName: 'Black Dye',
+                hex: '#262628',
+                enabled: true,
+                role: 'Heavy saddening agent (keep low in 25°C water to avoid frosty tips)'
+            },
+            {
+                id: 'havana_brown',
+                name: 'Havana / Yellow-Brown',
+                shortName: 'Havana Yellow-Brown',
+                hex: '#7E5A35',
+                enabled: true,
+                role: 'Bridges Green & Grey/Black into warm khaki-mud'
+            },
+            {
+                id: 'medium_brown',
+                name: 'Neutral / Warm Medium Brown',
+                shortName: 'Medium Brown',
+                hex: '#6B442E',
+                enabled: true,
+                role: 'Counters excess green/ash in Mehendi or Green+Black re-dyes'
+            },
+            {
+                id: 'golden_yellow',
+                name: 'Acid Golden Yellow / Ochre',
+                shortName: 'Golden Yellow',
+                hex: '#B88A28',
+                enabled: true,
+                role: 'Adds olive-drab golden highlight to greyed bases'
+            },
+            {
+                id: 'bordeaux_red',
+                name: 'Bordeaux / Red-Brown',
+                shortName: 'Red-Brown',
+                hex: '#6E2B2B',
+                enabled: false,
+                role: 'Only used if base is excessively green and needs strong red shift'
+            }
+        ];
+
+        let currentCalculatedFormula = [];
+
+        // =========================================================================
+        // 2. COLOR CONVERSION & CIELAB OPTICAL MATH
+        // =========================================================================
+        function hexToRgb(hex) {
+            let clean = hex.replace('#', '').trim();
+            if (clean.length === 3) {
+                clean = clean.split('').map(c => c + c).join('');
+            }
+            const num = parseInt(clean, 16);
+            if (isNaN(num)) return { r: 128, g: 128, b: 128 };
+            return {
+                r: (num >> 16) & 255,
+                g: (num >> 8) & 255,
+                b: num & 255
+            };
+        }
+
+        function rgbToHex(r, g, b) {
+            const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
+            return '#' + [clamp(r), clamp(g), clamp(b)]
+                .map(x => x.toString(16).padStart(2, '0'))
+                .join('')
+                .toUpperCase();
+        }
+
+        // Convert RGB to CIELAB (D65 standard daylight)
+        function rgbToLab(r, g, b) {
+            let R = r / 255, G = g / 255, B = b / 255;
+            R = R > 0.04045 ? Math.pow((R + 0.055) / 1.055, 2.4) : R / 12.92;
+            G = G > 0.04045 ? Math.pow((G + 0.055) / 1.055, 2.4) : G / 12.92;
+            B = B > 0.04045 ? Math.pow((B + 0.055) / 1.055, 2.4) : B / 12.92;
+
+            let X = (R * 0.4124 + G * 0.3576 + B * 0.1805) / 0.95047;
+            let Y = (R * 0.2126 + G * 0.7152 + B * 0.0722) / 1.00000;
+            let Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) / 1.08883;
+
+            const f = t => t > 0.008856 ? Math.cbrt(t) : (7.787 * t) + (16 / 116);
+            const fx = f(X), fy = f(Y), fz = f(Z);
+
+            return {
+                L: (116 * fy) - 16,   // 0 (black) to 100 (white)
+                a: 500 * (fx - fy),   // -a is Green, +a is Red
+                b: 200 * (fy - fz)    // -b is Blue, +b is Yellow
+            };
+        }
+
+        function deltaE(lab1, lab2) {
+            const dL = lab1.L - lab2.L;
+            const da = lab1.a - lab2.a;
+            const db = lab1.b - lab2.b;
+            return Math.sqrt(dL * dL + da * da + db * db);
+        }
+
+        function describeLeatherShade(hex) {
+            const rgb = hexToRgb(hex);
+            const lab = rgbToLab(rgb.r, rgb.g, rgb.b);
+            if (lab.L < 30) return 'Deep Charcoal / Espresso';
+            if (lab.a < -3 && lab.b > 8) return 'Mehendi / Herbal Olive';
+            if (lab.a > 6 && lab.b > 14) return 'EI Wattle / Warm Tan Crust';
+            if (Math.abs(lab.a) <= 3 && lab.b >= 4 && lab.b <= 13) return 'Cool Mud / Ash Taupe';
+            if (lab.a >= 1 && lab.a <= 6 && lab.b >= 7 && lab.b <= 16) return 'Warm Mud / Fango Olive';
+            if (lab.b < -2) return 'Wet-Blue / Slate Chrome';
+            return 'Suede Earth Tone';
+        }
+
+        // =========================================================================
+        // 3. INTERACTIVE DUAL CANVAS (REFERENCE SWATCHES + UPLOADED PHOTO)
+        // =========================================================================
+        function initCanvas() {
+            const canvas = document.getElementById('swatchCanvas');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width || 420;
+            canvas.height = rect.height || 224;
+            drawCanvasContent();
+
+            canvas.addEventListener('pointerdown', handleCanvasSample);
+            document.getElementById('imageLoader').addEventListener('change', handleImageUpload);
+        }
+
+        function drawCanvasContent() {
+            const canvas = document.getElementById('swatchCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (uploadedImage) {
+                // Draw uploaded image preserving aspect cover
+                const imgRatio = uploadedImage.width / uploadedImage.height;
+                const canvasRatio = w / h;
+                let drawW = w, drawH = h, offsetX = 0, offsetY = 0;
+                if (imgRatio > canvasRatio) {
+                    drawH = h;
+                    drawW = h * imgRatio;
+                    offsetX = -(drawW - w) / 2;
+                } else {
+                    drawW = w;
+                    drawH = w / imgRatio;
+                    offsetY = -(drawH - h) / 2;
+                }
+                ctx.drawImage(uploadedImage, offsetX, offsetY, drawW, drawH);
+                return;
+            }
+
+            // Default Interactive Tannery Reference Swatch Board (4 quadrants simulating suede nap)
+            const quadrants = [
+                { x: 0, y: 0, w: w / 2, h: h / 2, color: '#827564', title: 'MASTER MUD SWATCH', sub: '#827564 (Target Fango)' },
+                { x: w / 2, y: 0, w: w / 2, h: h / 2, color: '#6B7048', title: 'MEHENDI GREEN BASE', sub: '#6B7048 (Old Dyed Lot)' },
+                { x: 0, y: h / 2, w: w / 2, h: h / 2, color: '#878076', title: 'GREEN+BLACK TRIAL', sub: '#878076 (Rounded Cut)' },
+                { x: w / 2, y: h / 2, w: w / 2, h: h / 2, color: '#C4A482', title: 'EI SEMI-CHROME CRUST', sub: '#C4A482 (Wattle Base)' }
+            ];
+
+            quadrants.forEach(q => {
+                const rgb = hexToRgb(q.color);
+                ctx.fillStyle = q.color;
+                ctx.fillRect(q.x, q.y, q.w, q.h);
+
+                // Simulate realistic suede nap grain texture
+                for (let i = 0; i < 450; i++) {
+                    const px = q.x + Math.random() * q.w;
+                    const py = q.y + Math.random() * q.h;
+                    const delta = (Math.random() - 0.5) * 14;
+                    ctx.fillStyle = rgbToHex(rgb.r + delta, rgb.g + delta, rgb.b + delta);
+                    ctx.fillRect(px, py, 2, 2);
+                }
+
+                // Label Tag
+                ctx.fillStyle = 'rgba(18, 16, 14, 0.78)';
+                ctx.fillRect(q.x + 8, q.y + 8, q.w - 16, 36);
+                ctx.fillStyle = '#f5f5f4';
+                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.fillText(q.title, q.x + 14, q.y + 23);
+                ctx.fillStyle = '#d6d3d1';
+                ctx.font = '10px JetBrains Mono, monospace';
+                ctx.fillText(q.sub, q.x + 14, q.y + 37);
+            });
+
+            // Divider crosshair lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h);
+            ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
+            ctx.stroke();
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedImage = img;
+                    drawCanvasContent();
+                    showToast('Photo loaded! Tap canvas to sample Base Skin & Target Swatch.');
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleCanvasSample(e) {
+            const canvas = document.getElementById('swatchCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const cx = Math.floor((e.clientX - rect.left) * scaleX);
+            const cy = Math.floor((e.clientY - rect.top) * scaleY);
+
+            // Sample 5x5 suede nap area average
+            let rSum = 0, gSum = 0, bSum = 0, count = 0;
+            for (let dx = -2; dx <= 2; dx++) {
+                for (let dy = -2; dy <= 2; dy++) {
+                    const sx = Math.max(0, Math.min(canvas.width - 1, cx + dx));
+                    const sy = Math.max(0, Math.min(canvas.height - 1, cy + dy));
+                    const pixel = ctx.getImageData(sx, sy, 1, 1).data;
+                    rSum += pixel[0];
+                    gSum += pixel[1];
+                    bSum += pixel[2];
+                    count++;
+                }
+            }
+            const sampledHex = rgbToHex(rSum / count, gSum / count, bSum / count);
+
+            // Draw visual ring at sampled spot
+            drawCanvasContent();
+            ctx.strokeStyle = sampleMode === 'base' ? '#f59e0b' : '#10b981';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+            ctx.stroke();
+
+            if (sampleMode === 'base') {
+                baseHex = sampledHex;
+            } else {
+                targetHex = sampledHex;
+            }
+            syncColorInputs();
+            recalculateAll();
+        }
+
+        function setSampleMode(mode) {
+            sampleMode = mode;
+            const baseBtn = document.getElementById('modeBaseBtn');
+            const targetBtn = document.getElementById('modeTargetBtn');
+            const label = document.getElementById('activeModeLabel');
+
+            if (mode === 'base') {
+                baseBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition bg-amber-600 text-stone-950 shadow';
+                targetBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition text-stone-300 hover:text-white';
+                label.textContent = 'Base Skin Color';
+                label.className = 'text-amber-400';
+            } else {
+                targetBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition bg-emerald-600 text-stone-950 shadow';
+                baseBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition text-stone-300 hover:text-white';
+                label.textContent = 'Target Buyer Swatch';
+                label.className = 'text-emerald-400';
+            }
+        }
+
+        function updateFromPicker(which, val) {
+            if (which === 'base') baseHex = val.toUpperCase();
+            else targetHex = val.toUpperCase();
+            syncColorInputs();
+            recalculateAll();
+        }
+
+        function updateFromHexInput(which, val) {
+            let clean = val.trim();
+            if (!clean.startsWith('#')) clean = '#' + clean;
+            if (/^#[0-9A-Fa-f]{6}$/.test(clean)) {
+                if (which === 'base') baseHex = clean.toUpperCase();
+                else targetHex = clean.toUpperCase();
+                syncColorInputs();
+                recalculateAll();
+            }
+        }
+
+        function applyScenario(bHex, tHex, article, substrate) {
+            baseHex = bHex;
+            targetHex = tHex;
+            document.getElementById('articleSelect').value = article;
+            document.getElementById('substrateSelect').value = substrate;
+            syncColorInputs();
+            autoSuggestDyePct();
+            recalculateAll();
+            showToast('Scenario loaded & drum formula recalculated!');
+        }
+
+        function syncColorInputs() {
+            document.getElementById('baseColorPicker').value = baseHex;
+            document.getElementById('targetColorPicker').value = targetHex;
+            document.getElementById('baseHexInput').value = baseHex;
+            document.getElementById('targetHexInput').value = targetHex;
+            document.getElementById('baseSwatchBox').style.backgroundColor = baseHex;
+            document.getElementById('targetSwatchBox').style.backgroundColor = targetHex;
+            document.getElementById('baseDotIndicator').style.backgroundColor = baseHex;
+            document.getElementById('targetDotIndicator').style.backgroundColor = targetHex;
+            document.getElementById('baseColorName').textContent = describeLeatherShade(baseHex);
+            document.getElementById('targetColorName').textContent = describeLeatherShade(targetHex);
+        }
+
+        // =========================================================================
+        // 4. SUBTRACTIVE DYE COMBINATION ENGINE
+        // =========================================================================
+        function renderDyeStockList() {
+            const container = document.getElementById('dyeStockList');
+            container.innerHTML = DYE_CATALOG.map(dye => `
+                <label class="flex items-center justify-between p-2.5 rounded-xl bg-stone-900/90 hover:bg-stone-900 border border-stone-800 cursor-pointer transition">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <input type="checkbox" ${dye.enabled ? 'checked' : ''} onchange="toggleDyeStock('${dye.id}', this.checked)" class="w-4 h-4 rounded accent-amber-500">
+                        <span class="w-5 h-5 rounded-md border border-white/20 shrink-0" style="background-color:${dye.hex}"></span>
+                        <div class="min-w-0">
+                            <div class="text-xs font-bold text-stone-100 truncate">${dye.name}</div>
+                            <div class="text-[10px] text-stone-400 truncate">${dye.role}</div>
+                        </div>
+                    </div>
+                    <span id="stockBadge_${dye.id}" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-300 ml-2 shrink-0">0%</span>
+                </label>
+            `).join('');
+        }
+
+        function toggleDyeStock(id, checked) {
+            const dye = DYE_CATALOG.find(d => d.id === id);
+            if (dye) dye.enabled = checked;
+            // Ensure at least 2 dyes stay enabled
+            if (DYE_CATALOG.filter(d => d.enabled).length === 0) {
+                dye.enabled = true;
+                renderDyeStockList();
+            }
+            recalculateAll();
+        }
+
+        function onTotalDyeChange(val) {
+            document.getElementById('totalDyePctDisplay').textContent = parseFloat(val).toFixed(2) + '%';
+            recalculateAll();
+        }
+
+        function autoSuggestDyePct() {
+            const baseRgb = hexToRgb(baseHex);
+            const targetRgb = hexToRgb(targetHex);
+            const baseLab = rgbToLab(baseRgb.r, baseRgb.g, baseRgb.b);
+            const targetLab = rgbToLab(targetRgb.r, targetRgb.g, targetRgb.b);
+            const dE = deltaE(baseLab, targetLab);
+            const substrate = document.getElementById('substrateSelect').value;
+
+            let suggested = 1.2;
+            if (substrate === 'already_dyed') {
+                // Re-dyeing or topping requires a finer corrective dose
+                suggested = Math.max(0.35, Math.min(1.60, +(dE * 0.065).toFixed(2)));
+            } else if (substrate === 'ei_crust') {
+                suggested = Math.max(1.80, Math.min(2.80, +(1.5 + dE * 0.04).toFixed(2)));
+            } else {
+                suggested = Math.max(2.00, Math.min(3.80, +(1.8 + dE * 0.05).toFixed(2)));
+            }
+            document.getElementById('totalDyeSlider').value = suggested;
+            document.getElementById('totalDyePctDisplay').textContent = suggested.toFixed(2) + '%';
+        }
+
+        function calculateSubtractiveFormula() {
+            const baseRgb = hexToRgb(baseHex);
+            const targetRgb = hexToRgb(targetHex);
+            const baseLab = rgbToLab(baseRgb.r, baseRgb.g, baseRgb.b);
+            const targetLab = rgbToLab(targetRgb.r, targetRgb.g, targetRgb.b);
+
+            const dL = targetLab.L - baseLab.L; // Negative means target is darker
+            const da = targetLab.a - baseLab.a; // Negative means shift toward Green; Positive means shift toward Red/Warm Brown
+            const db = targetLab.b - baseLab.b; // Negative means shift toward Blue-Grey; Positive means shift toward Yellow/Ochre
+            const dE = deltaE(baseLab, targetLab);
+
+            // Update Visual Axis Markers
+            document.getElementById('deltaEBadge').textContent = `ΔE: ${dE.toFixed(1)}`;
+            const rgPos = Math.max(8, Math.min(92, 50 + da * 3.2));
+            const ybPos = Math.max(8, Math.min(92, 50 + db * 2.8));
+            const lPos  = Math.max(8, Math.min(92, 50 + dL * 2.0));
+
+            document.getElementById('rgMarker').style.left = rgPos + '%';
+            document.getElementById('ybMarker').style.left = ybPos + '%';
+            document.getElementById('lMarker').style.left = lPos + '%';
+
+            document.getElementById('rgShiftText').textContent =
+                da < -1.2 ? `Δa: ${da.toFixed(1)} (Kill Red w/ Olive Green)` :
+                da > 1.2  ? `Δa: +${da.toFixed(1)} (Add Warm Brown to counter Green)` :
+                            `Δa: ${da.toFixed(1)} (Red/Green Balanced)`;
+
+            document.getElementById('ybShiftText').textContent =
+                db < -1.2 ? `Δb: ${db.toFixed(1)} (Mute Yellow w/ Grey/Black)` :
+                db > 1.2  ? `Δb: +${db.toFixed(1)} (Add Khaki/Havana Yellow)` :
+                            `Δb: ${db.toFixed(1)} (Yellow/Grey Balanced)`;
+
+            document.getElementById('lShiftText').textContent =
+                dL < -2 ? `ΔL: ${dL.toFixed(1)} (Deepen Shade)` :
+                dL > 2  ? `ΔL: +${dL.toFixed(1)} (Strip Surface w/ Ammonia First)` :
+                          `ΔL: ${dL.toFixed(1)} (Matched Depth + Oil Intensifier)`;
+
+            // Compute raw weights for each dye based on color-wheel counter-shading
+            const weights = {
+                olive_green: 0,
+                neutral_grey: 0,
+                acid_black: 0,
+                havana_brown: 0,
+                medium_brown: 0,
+                golden_yellow: 0,
+                bordeaux_red: 0
+            };
+
+            const substrate = document.getElementById('substrateSelect').value;
+
+            // 1. Red-Green Counter-Shading (da)
+            if (da < -0.5) {
+                // Base is too red/warm (like EI wattle crust or warm patchy skin) -> Add Olive Green
+                weights.olive_green += Math.abs(da) * 6.5;
+            } else if (da > 0.5) {
+                // Base is too green/cool (like Mehendi Green or Green+Black re-dye) -> Add Medium Brown & Havana
+                weights.medium_brown += da * 6.2;
+                weights.havana_brown += da * 3.0;
+                if (da > 4.5) weights.bordeaux_red += (da - 4.0) * 2.5;
+            }
+
+            // 2. Yellow-Blue/Grey Counter-Shading (db)
+            if (db < -0.5) {
+                // Base is too yellow (like Mehendi or raw flank) -> Mute with Grey or Black
+                weights.neutral_grey += Math.abs(db) * 5.2;
+                weights.acid_black += Math.abs(db) * 2.4;
+            } else if (db > 0.5) {
+                // Base is too grey/ashy (like the rounded Green+Black trial piece) -> Add Havana & Golden Yellow
+                weights.havana_brown += db * 5.5;
+                weights.golden_yellow += db * 3.2;
+            }
+
+            // 3. Base-specific tannery adjustments
+            if (substrate === 'ei_crust') {
+                // EI Wattle always releases hidden warmth during drumming
+                weights.olive_green += 18;
+                weights.neutral_grey += 14;
+                weights.havana_brown += 8;
+            } else if (substrate === 'already_dyed' && dE < 6.5) {
+                // Fine-tuning a close trial (like the rounded cutting #878076 -> #827564)
+                weights.havana_brown += 12;
+                weights.medium_brown += 8;
+                weights.olive_green += 5;
+            }
+
+            // 4. Depth / Darkness contribution
+            if (dL < -3) {
+                const darkNeed = Math.abs(dL) * 1.4;
+                weights.neutral_grey += darkNeed * 0.6;
+                weights.acid_black += darkNeed * 0.4;
+                weights.medium_brown += darkNeed * 0.5;
+            }
+
+            // Ensure baseline mud-olive harmony if weights are very small
+            const rawSum = Object.values(weights).reduce((a, b) => a + b, 0);
+            if (rawSum < 5) {
+                weights.havana_brown = 45;
+                weights.olive_green = 30;
+                weights.neutral_grey = 25;
+            }
+
+            // Respect enabled/disabled Store Room Dyes (Intelligent Substitution)
+            const isEnabled = id => DYE_CATALOG.find(d => d.id === id)?.enabled;
+
+            if (!isEnabled('neutral_grey') && weights.neutral_grey > 0) {
+                // If user only has Black + Green (no Grey), split Grey into Black + Havana + Olive
+                weights.acid_black += weights.neutral_grey * 0.55;
+                weights.havana_brown += weights.neutral_grey * 0.30;
+                weights.olive_green += weights.neutral_grey * 0.15;
+                weights.neutral_grey = 0;
+            }
+            if (!isEnabled('acid_black') && weights.acid_black > 0) {
+                weights.neutral_grey += weights.acid_black * 0.85;
+                weights.olive_green += weights.acid_black * 0.15;
+                weights.acid_black = 0;
+            }
+            if (!isEnabled('havana_brown') && weights.havana_brown > 0) {
+                weights.medium_brown += weights.havana_brown * 0.6;
+                weights.golden_yellow += weights.havana_brown * 0.4;
+                weights.havana_brown = 0;
+            }
+            if (!isEnabled('medium_brown') && weights.medium_brown > 0) {
+                weights.havana_brown += weights.medium_brown * 0.7;
+                weights.bordeaux_red += weights.medium_brown * 0.3;
+                weights.medium_brown = 0;
+            }
+
+            // Zero out any disabled dyes
+            DYE_CATALOG.forEach(d => {
+                if (!d.enabled) weights[d.id] = 0;
+            });
+
+            // Normalize to 100%
+            let totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+            if (totalWeight <= 0) {
+                const firstEnabled = DYE_CATALOG.find(d => d.enabled);
+                weights[firstEnabled.id] = 100;
+                totalWeight = 100;
+            }
+
+            const totalDyePct = parseFloat(document.getElementById('totalDyeSlider').value) || 1.2;
+            const lotWeightKg = parseFloat(document.getElementById('lotWeightInput').value) || 50;
+
+            currentCalculatedFormula = [];
+            DYE_CATALOG.forEach(dye => {
+                const ratio = (weights[dye.id] / totalWeight) * 100;
+                const roundedRatio = Math.round(ratio);
+                const badge = document.getElementById(`stockBadge_${dye.id}`);
+                if (badge) {
+                    badge.textContent = roundedRatio + '%';
+                    badge.className = roundedRatio > 0
+                        ? 'text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 ml-2 shrink-0'
+                        : 'text-xs font-mono font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-500 ml-2 shrink-0';
+                }
+
+                if (roundedRatio >= 2) {
+                    const pctOnWeight = (totalDyePct * (roundedRatio / 100));
+                    const grams = Math.round(lotWeightKg * 10 * pctOnWeight); // 1% of 1kg = 10g
+                    currentCalculatedFormula.push({
+                        ...dye,
+                        ratio: roundedRatio,
+                        pctOnWeight: pctOnWeight,
+                        grams: grams
+                    });
+                }
+            });
+
+            // Adjust rounding so sum of ratios = 100%
+            const sumRatios = currentCalculatedFormula.reduce((acc, item) => acc + item.ratio, 0);
+            if (currentCalculatedFormula.length > 0 && sumRatios !== 100) {
+                currentCalculatedFormula[0].ratio += (100 - sumRatios);
+                currentCalculatedFormula[0].pctOnWeight = totalDyePct * (currentCalculatedFormula[0].ratio / 100);
+                currentCalculatedFormula[0].grams = Math.round(lotWeightKg * 10 * currentCalculatedFormula[0].pctOnWeight);
+            }
+
+            // Sort highest ratio first
+            currentCalculatedFormula.sort((a, b) => b.ratio - a.ratio);
+
+            // Check Cold Water Black Alert
+            const blackEntry = currentCalculatedFormula.find(d => d.id === 'acid_black');
+            const waterMode = document.getElementById('waterTempSelect').value;
+            const warningEl = document.getElementById('blackWarningBox');
+            if (blackEntry && blackEntry.ratio >= 28 && waterMode === 'ambient') {
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+
+            // Diagnostic explanation text
+            const diagEl = document.getElementById('axisDiagnosisText');
+            if (da > 1.0 && db < -1.0) {
+                diagEl.innerHTML = `<strong class="text-amber-300">Mehendi / Green Base Diagnosis:</strong> Your starting base carries excess herbal green/yellow. Top with <strong>Medium/Havana Brown + Neutral Grey</strong> to neutralize the green and warm the surface into true Mud Olive.`;
+            } else if (da < -1.5) {
+                diagEl.innerHTML = `<strong class="text-emerald-300">Warm/Red Base Diagnosis:</strong> Your base has excess Wattle/Red-Brown warmth. Use <strong>Olive Green + Bluish Grey</strong> as direct complementary counter-tones to kill the redness.`;
+            } else if (dE < 6.0) {
+                diagEl.innerHTML = `<strong class="text-amber-300">Close Trial Fine-Tune (85–90% Match):</strong> Hue is already in the Mud family. Use a light top-up of <strong>Havana/Olive</strong> plus <strong>+1.5% Suede Fatliquor & 320-grit dust buffing</strong> to remove frosty tips.`;
+            } else {
+                diagEl.innerHTML = `<strong class="text-stone-200">Balanced Subtractive Conversion:</strong> Shifting base skin to target swatch using split-feed drumming for uniform core and flank penetration.`;
+            }
+        }
+
+        // =========================================================================
+        // 5. RENDER DYE TABLE & COMPLETE DRUM OPERATOR SHEET
+        // =========================================================================
+        function recalculateAll() {
+            calculateSubtractiveFormula();
+
+            const totalDyePct = parseFloat(document.getElementById('totalDyeSlider').value) || 1.2;
+            const lotWeightKg = parseFloat(document.getElementById('lotWeightInput').value) || 50;
+            const skinCount = parseInt(document.getElementById('skinCountInput').value) || 120;
+            const waterMode = document.getElementById('waterTempSelect').value;
+            const article = document.getElementById('articleSelect').value;
+            const substrate = document.getElementById('substrateSelect').value;
+
+            // Render Dye Formula Table
+            const tbody = document.getElementById('dyeFormulaTableBody');
+            tbody.innerHTML = currentCalculatedFormula.map(item => `
+                <tr>
+                    <td class="py-2.5 pr-2 font-semibold text-stone-100 print-text-dark flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded border border-white/20 shrink-0" style="background-color:${item.hex}"></span>
+                        <span>${item.name}</span>
+                    </td>
+                    <td class="py-2.5 px-2 text-stone-400 text-[11px]">${item.role}</td>
+                    <td class="py-2.5 px-2 text-right font-mono font-bold text-stone-200 print-text-dark">${item.ratio}%</td>
+                    <td class="py-2.5 px-2 text-right font-mono text-stone-300 print-text-dark">${item.pctOnWeight.toFixed(2)}%</td>
+                    <td class="py-2.5 pl-2 text-right font-mono font-bold text-amber-400 text-sm">${item.grams.toLocaleString()} g</td>
+                </tr>
+            `).join('');
+
+            const totalGrams = currentCalculatedFormula.reduce((acc, item) => acc + item.grams, 0);
+            document.getElementById('tableTotalPct').textContent = totalDyePct.toFixed(2) + '%';
+            document.getElementById('tableTotalGrams').textContent = totalGrams.toLocaleString() + ' g';
+
+            // Simulated Color Swatch Boxes
+            document.getElementById('simStartBox').style.backgroundColor = baseHex;
+            document.getElementById('simTargetBox').style.backgroundColor = targetHex;
+            // Blend 92% target + 8% base to show predicted dyed outcome
+            const bRgb = hexToRgb(baseHex), tRgb = hexToRgb(targetHex);
+            const simHex = rgbToHex(tRgb.r * 0.94 + bRgb.r * 0.06, tRgb.g * 0.94 + bRgb.g * 0.06, tRgb.b * 0.94 + bRgb.b * 0.06);
+            document.getElementById('simResultBox').style.backgroundColor = simHex;
+
+            // Bucket Dissolving Instructions
+            const bucketWaterL = Math.max(5, Math.round(totalGrams / 50));
+            const wettingGrams = Math.round(lotWeightKg * 10 * 0.15);
+            document.getElementById('dyeDissolveNote').innerHTML = waterMode === 'ambient'
+                ? `<strong>100% Normal Water Dissolving Rule:</strong> Paste <strong>${totalGrams} g</strong> total dye blend in a plastic bucket with <strong>${wettingGrams} g Non-Ionic Wetting Agent</strong> + a splash of Ammonia, dilute in <strong>${bucketWaterL} Liters</strong> normal water (25–30°C), stir vigorously for 5 mins, and strain through fine mulmul cloth before feeding in <strong>3 split installments</strong>.`
+                : `<strong>Warm Water Dissolving Rule:</strong> Dissolve <strong>${totalGrams} g</strong> total dye blend in <strong>${bucketWaterL} Liters</strong> warm water (55°C), strain through fine mesh cloth, and feed in <strong>2 installments</strong> spaced 15 minutes apart.`;
+
+            // Update Meta Summary
+            const tempLabel = waterMode === 'ambient' ? '25–30°C Normal Ambient Water' : '40–50°C Warm Water';
+            document.getElementById('batchMetaSummary').textContent = `${lotWeightKg} kg | ${skinCount} Skins | ${tempLabel}`;
+
+            // Build Step-by-Step Drum Stages
+            renderDrumStages(lotWeightKg, waterMode, article, substrate);
+        }
+
+        function calcAmt(lotKg, pct, isLiquidLiters = false) {
+            if (isLiquidLiters) {
+                const liters = (lotKg * (pct / 100));
+                return `${liters.toFixed(0)} L`;
+            }
+            const grams = Math.round(lotKg * 10 * pct);
+            if (grams >= 1000) {
+                return `${(grams / 1000).toFixed(2)} kg (${grams} g)`;
+            }
+            return `${grams} g`;
+        }
+
+        function renderDrumStages(lotKg, waterMode, article, substrate) {
+            const isCold = waterMode === 'ambient';
+            const stages = [];
+
+            // STAGE 1: Wet-Back & Surface Strip / Cleaning
+            if (substrate === 'already_dyed' || article === 'redye') {
+                stages.push({
+                    num: 'STAGE 1',
+                    title: 'Ambient Wet-Back & Partial Surface Leveling Strip',
+                    purpose: 'Opens tight fibers, pulls uneven surface/tip dye back into float, and equalizes old Mehendi/odd shade across flanks and center.',
+                    time: isCold ? '60 – 75 mins' : '45 mins',
+                    targetPh: 'pH 7.0 – 7.4 (Drain & Wash 2×)',
+                    items: [
+                        { name: isCold ? 'Normal Ambient Water (25–30°C)' : 'Warm Water (40°C)', pct: '300%', amt: calcAmt(lotKg, 300, true) },
+                        { name: 'Amphoteric / Non-Ionic Wetting & Leveling Agent', pct: '2.0%', amt: calcAmt(lotKg, 2.0) },
+                        { name: 'Ammonia (NH₃, diluted 1:10 in water)', pct: isCold ? '1.8%' : '1.2%', amt: calcAmt(lotKg, isCold ? 1.8 : 1.2) },
+                        { name: 'Sodium Bicarbonate', pct: '1.2%', amt: calcAmt(lotKg, 1.2) }
+                    ],
+                    note: 'Check cut edge and float after running: murky float confirms uneven surface strike has lifted. Drain completely and wash twice for 15 mins in 300% normal water.'
+                });
+            } else if (substrate === 'ei_crust') {
+                stages.push({
+                    num: 'STAGE 1',
+                    title: 'EI Crust Wet-Back & Oxidized Wattle Tannin Strip',
+                    purpose: 'Removes loose, oxidized pinkish-red vegetable tannins sitting on the dense backbone so the center does not turn reddish-brown.',
+                    time: isCold ? '60 mins' : '45 mins',
+                    targetPh: 'pH 6.8 – 7.2 (Drain & Wash 2×)',
+                    items: [
+                        { name: isCold ? 'Normal Ambient Water (25–30°C)' : 'Warm Water (40°C)', pct: '300%', amt: calcAmt(lotKg, 300, true) },
+                        { name: 'Non-Ionic Wetting Agent', pct: '1.5%', amt: calcAmt(lotKg, 1.5) },
+                        { name: 'Sodium Bicarbonate', pct: '1.5%', amt: calcAmt(lotKg, 1.5) },
+                        { name: 'Ammonia (diluted 1:10)', pct: '0.8%', amt: calcAmt(lotKg, 0.8) }
+                    ],
+                    note: 'Drain completely and wash twice with 300% clean normal water before neutralization.'
+                });
+            } else {
+                stages.push({
+                    num: 'STAGE 1',
+                    title: 'Substrate Conditioning & De-Acidification Wash',
+                    purpose: 'Wets out fibers uniformly and removes free surface acid/salts before neutralization.',
+                    time: '30 mins',
+                    targetPh: 'pH 5.2 – 5.5 (Drain)',
+                    items: [
+                        { name: isCold ? 'Normal Ambient Water (25–30°C)' : 'Warm Water (35°C)', pct: '250%', amt: calcAmt(lotKg, 250, true) },
+                        { name: 'Non-Ionic Wetting Agent', pct: '1.0%', amt: calcAmt(lotKg, 1.0) },
+                        { name: 'Sodium Formate', pct: '1.0%', amt: calcAmt(lotKg, 1.0) }
+                    ],
+                    note: 'Drain bath after 30 minutes.'
+                });
+            }
+
+            // STAGE 2: Backbone vs. Flank Density Equalization & Neutralization
+            stages.push({
+                num: 'STAGE 2',
+                title: 'Backbone vs. Flank Density Leveling & Core Neutralization',
+                purpose: 'Fills loose flanks so they do not drink up yellow dye fractions, and neutralizes cationic charge right through the cross-section.',
+                time: isCold ? '45 mins' : '35 mins',
+                targetPh: 'Uniform pH 6.2 – 6.5 (Cross-Section)',
+                items: [
+                    { name: isCold ? 'Fresh Normal Water (25–30°C)' : 'Fresh Water (35°C)', pct: '150%', amt: calcAmt(lotKg, 150, true) },
+                    { name: 'Acrylic Flank-Tightening Resin (e.g. Smitan ARC)', pct: '3.0%', amt: calcAmt(lotKg, 3.0) },
+                    { name: 'Naphthalenic Dispersing Syntan (e.g. Smitan MCC)', pct: '3.0%', amt: calcAmt(lotKg, 3.0) },
+                    { name: 'Sodium Formate', pct: '1.5%', amt: calcAmt(lotKg, 1.5) },
+                    { name: 'Sodium Bicarbonate (if needed for pH 6.2+)', pct: '0.5%', amt: calcAmt(lotKg, 0.5) }
+                ],
+                note: 'Test cut edge with Bromocresol Purple indicator: cross-section must be uniform purple/violet right to the core. DO NOT DRAIN THIS BATH.'
+            });
+
+            // STAGE 3: Pre-Fatliquor Cushion & Split Subtractive Dyeing
+            const dyeItems = [
+                { name: 'Amphoteric Dye Leveling Auxiliary', pct: '2.0%', amt: calcAmt(lotKg, 2.0) },
+                { name: 'Deep-Penetrating Synthetic Fatliquor (e.g. Synthol FL)', pct: '2.5%', amt: calcAmt(lotKg, 2.5) }
+            ];
+            currentCalculatedFormula.forEach(d => {
+                dyeItems.push({
+                    name: `DYE: ${d.name} (${d.ratio}% of mix)`,
+                    pct: `${d.pctOnWeight.toFixed(2)}%`,
+                    amt: `${d.grams.toLocaleString()} g`,
+                    highlight: true
+                });
+            });
+
+            stages.push({
+                num: 'STAGE 3',
+                title: 'Pre-Fatliquor Cushion & Split-Feed Subtractive Dyeing',
+                purpose: 'Lubricates fibrils to prevent chalky/milky nap and drives Olive/Grey/Brown molecules evenly into both tight center and flanks.',
+                time: isCold ? '25 mins Cushion + 75–90 mins Dyeing' : '20 mins Cushion + 45 mins Dyeing',
+                targetPh: 'pH 6.0 – 6.2 during penetration',
+                items: dyeItems,
+                note: isCold
+                    ? 'Run Leveler + Penetrating Fatliquor for 25 mins first. Then feed the strained dye solution in 3 EQUAL INSTALLMENTS spaced 15 minutes apart. Drum for 75–90 minutes in normal water until cut edge is completely penetrated.'
+                    : 'Run Leveler + Penetrating Fatliquor for 20 mins, then feed strained dye in 2 installments spaced 15 mins apart.'
+            });
+
+            // STAGE 4: Main Suede Fatliquoring & Slow Gradual Fixation
+            const mainFatPct = article === 'nappa' ? 6.0 : (article === 'redye' ? 3.5 : 5.0);
+            stages.push({
+                num: 'STAGE 4',
+                title: 'Richness Top-Fatliquoring & Slow Multi-Feed Acid Fixation',
+                purpose: 'Deepens wet-look richness of the Mud shade (eliminating dusty/frosty tips) and fixes dye without acid shock.',
+                time: isCold ? '45 mins Fatliquor + 60 mins Fixation' : '35 mins Fatliquor + 45 mins Fixation',
+                targetPh: 'Final pH 3.6 – 3.8 (Clear Float)',
+                items: [
+                    { name: 'Cold-Emulsifiable Synthetic/Lecithin Fatliquor (pre-mixed 1:5 in water)', pct: `${mainFatPct.toFixed(1)}%`, amt: calcAmt(lotKg, mainFatPct) },
+                    { name: 'Formic Acid 85% (diluted 1:15 in normal water — 3 to 4 slow feeds)', pct: '1.8%', amt: calcAmt(lotKg, 1.8) },
+                    { name: 'Cationic Suede Dye Fixing Agent (Final 20 mins)', pct: '0.5%', amt: calcAmt(lotKg, 0.5) }
+                ],
+                note: 'Never dump Formic Acid in one shot on Mud shades. Add in 3–4 installments spaced 15 minutes apart. Drain, wash twice in clean cold water, and horse up overnight (24 hrs).'
+            });
+
+            // STAGE 5: Post-Dry Mechanical & Finishing Touch
+            stages.push({
+                num: 'STAGE 5',
+                title: 'Post-Dry Mechanical Nap Refinement & QC Check',
+                purpose: 'Removes microscopic black/oxidized fiber tips and raises a velvet "writing" nap matching the buyer cutting.',
+                time: 'Dry Mill 2–3 hrs + Buffing',
+                targetPh: 'Dry Finishing Dept',
+                items: [
+                    { name: 'High-Speed Dust Buffing (Flesh/Suede Side)', pct: article === 'nubuck' ? '400 Grit' : '280 / 320 Grit', amt: '1 Light Pass' },
+                    { name: 'Dry Milling in Drum with Suede Talc / Dedusting', pct: '2 – 3 Hours', amt: 'Velvet Writing Nap' },
+                    { name: 'Optional Top-Spray (Only if 5% extra depth needed)', pct: 'Mist Coat', amt: 'Hydro-Alcoholic Aniline + Suede Oil' }
+                ],
+                note: 'Knocking off the top 5% of dry oxidized fiber tips with 320-grit paper immediately eliminates any grey/ashy surface frostiness and reveals the rich Mud-Olive core.'
+            });
+
+            const container = document.getElementById('drumStagesContainer');
+            container.innerHTML = stages.map(st => `
+                <div class="p-3.5 sm:p-4 rounded-xl bg-stone-900/90 border border-stone-800 print-card">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-[11px] font-bold">${st.num}</span>
+                            <h4 class="text-sm font-bold text-stone-100 print-text-dark">${st.title}</h4>
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px] font-mono">
+                            <span class="px-2 py-0.5 rounded bg-stone-800 text-stone-300">⏱ ${st.time}</span>
+                            <span class="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50">${st.targetPh}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-stone-400 mb-3">${st.purpose}</p>
+                    <div class="divide-y divide-stone-800/80 border-y border-stone-800 mb-2.5">
+                        ${st.items.map(it => `
+                            <div class="py-1.5 flex items-center justify-between text-xs ${it.highlight ? 'bg-amber-500/10 px-2 rounded font-semibold text-amber-200' : 'text-stone-200'} print-text-dark">
+                                <span>${it.name}</span>
+                                <div class="flex items-center gap-4 font-mono shrink-0">
+                                    <span class="text-stone-400">${it.pct}</span>
+                                    <span class="font-bold ${it.highlight ? 'text-amber-400' : 'text-stone-100'} print-text-dark w-28 text-right">${it.amt}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="text-[11px] text-amber-200/90 bg-stone-950/80 px-3 py-2 rounded-lg border border-stone-800">
+                        <strong>Operator Note:</strong> ${st.note}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // =========================================================================
+        // 6. SAVE RECIPES & WHATSAPP / CLIPBOARD EXPORT
+        // =========================================================================
+        function getSavedLots() {
+            try {
+                return JSON.parse(localStorage.getItem('tannery_saved_lots_v2') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function updateSavedCount() {
+            document.getElementById('savedCount').textContent = getSavedLots().length;
+        }
+
+        function saveCurrentRecipe() {
+            const lots = getSavedLots();
+            const lotWeightKg = document.getElementById('lotWeightInput').value;
+            const skinCount = document.getElementById('skinCountInput').value;
+            const newLot = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                baseHex,
+                targetHex,
+                lotWeightKg,
+                skinCount,
+                article: document.getElementById('articleSelect').value,
+                substrate: document.getElementById('substrateSelect').value,
+                waterMode: document.getElementById('waterTempSelect').value,
+                totalDyePct: document.getElementById('totalDyeSlider').value,
+                formula: currentCalculatedFormula
+            };
+            lots.unshift(newLot);
+            localStorage.setItem('tannery_saved_lots_v2', JSON.stringify(lots.slice(0, 25)));
+            updateSavedCount();
+            showToast('Drum Lot Recipe saved to device!');
+        }
+
+        function loadSavedModal() {
+            const lots = getSavedLots();
+            const listEl = document.getElementById('savedLotsList');
+            if (lots.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-8 text-xs text-stone-400">No saved drum lots yet. Click "Save" next to piece count to store a lot.</div>`;
+            } else {
+                listEl.innerHTML = lots.map(l => `
+                    <div class="p-3 rounded-xl bg-stone-900 border border-stone-800 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="flex">
+                                <span class="w-5 h-8 rounded-l border border-white/20" style="background:${l.baseHex}"></span>
+                                <span class="w-5 h-8 rounded-r border border-white/20" style="background:${l.targetHex}"></span>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-stone-100">${l.lotWeightKg} kg (${l.skinCount} pcs) — ${l.totalDyePct}% Dye</div>
+                                <div class="text-[10px] font-mono text-stone-400">${l.date} | ${l.baseHex} → ${l.targetHex}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="restoreSavedLot(${l.id})" class="px-2.5 py-1 rounded bg-amber-600 text-stone-950 font-bold text-xs">Load</button>
+                            <button onclick="deleteSavedLot(${l.id})" class="px-2 py-1 rounded bg-stone-800 text-rose-400 text-xs">Del</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('savedModal').classList.remove('hidden');
+        }
+
+        function closeSavedModal() {
+            document.getElementById('savedModal').classList.add('hidden');
+        }
+
+        function restoreSavedLot(id) {
+            const lot = getSavedLots().find(x => x.id === id);
+            if (!lot) return;
+            baseHex = lot.baseHex;
+            targetHex = lot.targetHex;
+            document.getElementById('lotWeightInput').value = lot.lotWeightKg;
+            document.getElementById('skinCountInput').value = lot.skinCount;
+            document.getElementById('articleSelect').value = lot.article;
+            document.getElementById('substrateSelect').value = lot.substrate;
+            document.getElementById('waterTempSelect').value = lot.waterMode;
+            document.getElementById('totalDyeSlider').value = lot.totalDyePct;
+            document.getElementById('totalDyePctDisplay').textContent = parseFloat(lot.totalDyePct).toFixed(2) + '%';
+            syncColorInputs();
+            recalculateAll();
+            closeSavedModal();
+            showToast('Saved drum lot loaded!');
+        }
+
+        function deleteSavedLot(id) {
+            const filtered = getSavedLots().filter(x => x.id !== id);
+            localStorage.setItem('tannery_saved_lots_v2', JSON.stringify(filtered));
+            updateSavedCount();
+            loadSavedModal();
+        }
+
+        function copyWhatsAppSummary() {
+            const lotKg = document.getElementById('lotWeightInput').value;
+            const skins = document.getElementById('skinCountInput').value;
+            const water = document.getElementById('waterTempSelect').value === 'ambient' ? '25-30°C Normal Water' : '40-50°C Warm Water';
+            const totalPct = document.getElementById('totalDyeSlider').value;
+
+            let dyeLines = currentCalculatedFormula.map(d =>
+                `• ${d.shortName}: *${d.grams} g* (${d.ratio}% mix / ${d.pctOnWeight.toFixed(2)}%)`
+            ).join('\n');
+
+            const text =
+`*TANNERY DRUM JOB CARD*
+------------------------
+*Lot Weight:* ${lotKg} kg (${skins} Skins)
+*Water Mode:* ${water}
+*Color Shift:* Base ${baseHex} → Target ${targetHex}
+*Total Dye Offer:* ${totalPct}%
+
+*EXACT DYE COMBINATION:*
+${dyeLines}
+
+*KEY DRUM STEPS:*
+1. Wet-back/Strip: 300% Water + 2% Leveler + Ammonia/Bicarb (60 mins, Drain & Wash 2x)
+2. Neutralize/Level: 150% Water + 3% Acrylic Resin + 3% Dispersing Syntan + 1.5% Sod. Formate to pH 6.2-6.5
+3. Cushion & Dye: 2% Amphoteric Leveler + 2.5% Penetrating Fatliquor, then feed strained dyes in 3 split feeds (Run 75-90 mins)
+4. Fatliquor & Fix: Add Suede Fatliquor (45 mins), then fix slowly with Formic Acid in 3-4 feeds to pH 3.7.
+5. Dry Finish: 320-grit light dust buffing + 2-3 hrs dry milling.`;
+
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('WhatsApp Drum Job Card copied to clipboard!');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3200);
+        }
+
+        // Initialize on window load
+        window.onload = function() {
+            renderDyeStockList();
+            syncColorInputs();
+            initCanvas();
+            autoSuggestDyePct();
+            recalculateAll();
+            updateSavedCount();
+            window.addEventListener('resize', () => {
+                initCanvas();
+            });
+        };
+    </script>
+</body>
+</html>
