@@ -99,7 +99,11 @@
             <div class="flex items-center gap-2">
                 <button onclick="loadSavedModal()" class="px-3 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium border border-stone-700 flex items-center gap-1.5 transition">
                     <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-                    <span>Saved Lots (<span id="savedCount">0</span>)</span>
+                    <span>Shade Library (<span id="savedCount">0</span>)</span>
+                </button>
+                <button onclick="saveCurrentRecipe()" class="px-3 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 flex items-center gap-1.5 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Save Swatch</span>
                 </button>
                 <button onclick="copyWhatsAppSummary()" class="px-3 py-2 rounded-lg bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 text-xs font-semibold border border-emerald-600/50 flex items-center gap-1.5 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
@@ -122,142 +126,164 @@
     <!-- Main Content Grid -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 pt-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT COLUMN: Photo Sampler + Color Axis + Dye Engine (5 cols) -->
+        <!-- LEFT COLUMN: Dedicated Target & Base Swatch Uploaders + Color Axis + Dye Engine (5 cols) -->
         <div class="lg:col-span-5 space-y-6 no-print">
 
-            <!-- 1. Interactive Suede Swatch & Crust Sampler -->
-            <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 shadow-xl">
-                <div class="flex items-center justify-between mb-3">
+            <!-- 1A. TARGET BUYER SWATCH UPLOAD & COLOR NAME CARD -->
+            <section class="bg-[#211e1b] border border-emerald-700/50 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between gap-2 mb-3">
                     <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                            <span>1. Optical Crust & Swatch Sampler</span>
+                        <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">Step 1A • Buyer Target</span>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-stone-100 mt-1">
+                            Target Buyer Swatch & Color Name
                         </h2>
-                        <p class="text-xs text-stone-400">Upload a photo or tap the canvas to average 5×5 suede nap pixels</p>
                     </div>
-                    <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-600 text-xs font-semibold text-stone-200 flex items-center gap-1.5 transition">
-                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span>Upload Photo</span>
-                        <input type="file" id="imageLoader" accept="image/*" class="hidden">
+                    <label class="cursor-pointer px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-stone-950 text-xs font-extrabold flex items-center gap-1.5 transition shadow-lg shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Upload Target Swatch</span>
+                        <input type="file" id="targetImageLoader" accept="image/*" class="hidden">
                     </label>
                 </div>
 
-                <!-- Mode Selector Toggle -->
-                <div class="grid grid-cols-2 gap-2 p-1 bg-stone-900 rounded-xl mb-3 border border-stone-800">
-                    <button id="modeBaseBtn" onclick="setSampleMode('base')" class="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition bg-amber-600 text-stone-950 shadow">
-                        <span class="w-3 h-3 rounded-full border border-black" id="baseDotIndicator" style="background-color: #6B7048;"></span>
-                        <span>Pick Base Skin / Crust</span>
-                    </button>
-                    <button id="modeTargetBtn" onclick="setSampleMode('target')" class="py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition text-stone-300 hover:text-white">
-                        <span class="w-3 h-3 rounded-full border border-white/40" id="targetDotIndicator" style="background-color: #827564;"></span>
-                        <span>Pick Target Swatch</span>
-                    </button>
-                </div>
-
-                <!-- Interactive Canvas Container -->
-                <div class="relative w-full h-56 rounded-xl overflow-hidden border border-stone-700 bg-stone-950 mb-3">
-                    <canvas id="swatchCanvas" class="w-full h-full block"></canvas>
-                    <div id="canvasHint" class="pointer-events-none absolute bottom-2 left-2 right-2 bg-black/75 backdrop-blur-sm px-2.5 py-1.5 rounded-lg text-[11px] text-stone-300 flex items-center justify-between">
-                        <span>Tap anywhere on canvas to sample <strong id="activeModeLabel" class="text-amber-400">Base Skin Color</strong></span>
-                        <span class="font-mono text-stone-400">5×5 Nap Avg</span>
+                <!-- Custom Target Color Name Input -->
+                <div class="mb-3">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-400 mb-1">
+                        Target Color / Buyer Shade Name:
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="targetCustomNameInput" value="Mud Olive Green - Buyer Master" oninput="recalculateAll()" placeholder="e.g., Mud Olive Green - Ref #104" class="w-full rounded-xl bg-stone-900 border border-stone-700 px-3 py-2 text-xs font-bold text-emerald-300 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
-                <!-- Quick Presets from User's Actual Case -->
-                <div class="mb-4">
-                    <div class="text-[11px] font-semibold uppercase tracking-wider text-stone-400 mb-1.5">Quick Case Presets (Click to Load Scenario):</div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-                        <button onclick="applyScenario('#6B7048', '#827564', 'redye', 'already_dyed')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-amber-500/40 transition">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#6B7048"></span>
-                                <span class="text-stone-400 text-[10px]">→</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
-                            </div>
-                            <div class="text-[11px] font-bold text-amber-300 leading-tight">Mehendi → Mud Olive</div>
-                            <div class="text-[10px] text-stone-400">Re-dye Green Base</div>
+                <!-- Quick Target Swatch Preset Chips -->
+                <div class="mb-3">
+                    <div class="text-[10px] font-mono uppercase text-stone-400 mb-1">Quick Target Shade Presets:</div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setPresetColor('target', '#827564', 'Mud Olive Green (Fango)')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#827564"></span>
+                            <span>Mud Olive (#827564)</span>
                         </button>
-
-                        <button onclick="applyScenario('#878076', '#827564', 'redye', 'already_dyed')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#878076"></span>
-                                <span class="text-stone-400 text-[10px]">→</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
-                            </div>
-                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Rounded Trial → Master</div>
-                            <div class="text-[10px] text-stone-400">Fix Ashy Green+Black</div>
+                        <button onclick="setPresetColor('target', '#878076', 'Ash Charcoal Mud')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#878076"></span>
+                            <span>Ash Mud (#878076)</span>
                         </button>
-
-                        <button onclick="applyScenario('#C4A482', '#827564', 'suede_ei', 'ei_crust')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#C4A482"></span>
-                                <span class="text-stone-400 text-[10px]">→</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
-                            </div>
-                            <div class="text-[11px] font-bold text-stone-200 leading-tight">EI Crust → Mud Olive</div>
-                            <div class="text-[10px] text-stone-400">Kill Wattle Redness</div>
+                        <button onclick="setPresetColor('target', '#988B78', 'Desert Mushroom Taupe')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#988B78"></span>
+                            <span>Desert Taupe (#988B78)</span>
                         </button>
-
-                        <button onclick="applyScenario('#9A7B64', '#827564', 'redye', 'already_dyed')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#9A7B64"></span>
-                                <span class="text-stone-400 text-[10px]">→</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#827564"></span>
-                            </div>
-                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Warm Patchy → Mud</div>
-                            <div class="text-[10px] text-stone-400">Counter Red Center</div>
+                        <button onclick="setPresetColor('target', '#584438', 'Dark Snuff Suede Brown')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#584438"></span>
+                            <span>Snuff Brown (#584438)</span>
                         </button>
-
-                        <button onclick="applyScenario('#B8C9D4', '#584438', 'suede_fc', 'wet_blue')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#B8C9D4"></span>
-                                <span class="text-stone-400 text-[10px]">→</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#584438"></span>
-                            </div>
-                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Wet-Blue → Snuff Suede</div>
-                            <div class="text-[10px] text-stone-400">Full-Chrome Deep Brown</div>
-                        </button>
-
-                        <button onclick="applyScenario('#D8CEBE', '#3B4236', 'nubuck', 'white_crust')" class="text-left p-2 rounded-lg bg-stone-800/90 hover:bg-stone-700 border border-stone-700 transition">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#D8CEBE"></span>
-                                <span class="text-stone-400 text-[10px]">→</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:#3B4236"></span>
-                            </div>
-                            <div class="text-[11px] font-bold text-stone-200 leading-tight">Crust → Loden Olive</div>
-                            <div class="text-[10px] text-stone-400">Shoe Nubuck Drum</div>
+                        <button onclick="setPresetColor('target', '#3B4236', 'Loden Forest Olive')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#3B4236"></span>
+                            <span>Loden Olive (#3B4236)</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Dual Color Swatch Cards & Manual Pickers -->
-                <div class="grid grid-cols-2 gap-3">
-                    <!-- Base Crust Card -->
-                    <div class="p-3 rounded-xl bg-stone-900 border border-stone-700">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-[11px] font-bold uppercase text-stone-400">Starting Base Skin</span>
-                            <input type="color" id="baseColorPicker" value="#6B7048" onchange="updateFromPicker('base', this.value)" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div id="baseSwatchBox" class="w-12 h-12 rounded-lg border border-white/20 shadow-inner shrink-0" style="background-color: #6B7048;"></div>
-                            <div class="min-w-0">
-                                <input type="text" id="baseHexInput" value="#6B7048" onchange="updateFromHexInput('base', this.value)" class="w-full bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs font-mono font-bold text-stone-100 uppercase">
-                                <div id="baseColorName" class="text-[11px] text-amber-400 truncate mt-1 font-medium">Mehendi Olive Base</div>
-                            </div>
+                <!-- Dedicated Target Swatch Interactive Canvas -->
+                <div class="relative w-full h-40 rounded-xl overflow-hidden border border-stone-700 bg-stone-950 mb-3">
+                    <canvas id="targetCanvas" class="w-full h-full block"></canvas>
+                    <div class="pointer-events-none absolute bottom-1.5 left-2 right-2 bg-black/75 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] text-stone-300 flex items-center justify-between">
+                        <span>Tap anywhere on Target Swatch photo to sample <strong class="text-emerald-400">5×5 Nap Average</strong></span>
+                        <span id="targetAutoTradeName" class="font-mono text-emerald-300">Warm Mud / Fango</span>
+                    </div>
+                </div>
+
+                <!-- Target Hex & Color Picker Row -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-stone-900 border border-stone-800">
+                    <div class="flex items-center gap-2.5">
+                        <div id="targetSwatchBox" class="w-10 h-10 rounded-lg border border-white/20 shadow-inner shrink-0" style="background-color: #827564;"></div>
+                        <div>
+                            <div class="text-[10px] uppercase font-mono text-stone-400">Sampled Target Hex</div>
+                            <input type="text" id="targetHexInput" value="#827564" onchange="updateFromHexInput('target', this.value)" class="w-28 bg-stone-950 border border-stone-700 rounded px-2 py-0.5 text-xs font-mono font-bold text-stone-100 uppercase">
                         </div>
                     </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] text-stone-400">Fine-Tune:</span>
+                        <input type="color" id="targetColorPicker" value="#827564" onchange="updateFromPicker('target', this.value)" class="w-8 h-8 rounded cursor-pointer bg-transparent border-0">
+                    </div>
+                </div>
+            </section>
 
-                    <!-- Target Swatch Card -->
-                    <div class="p-3 rounded-xl bg-stone-900 border border-stone-700">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-[11px] font-bold uppercase text-stone-400">Target Buyer Swatch</span>
-                            <input type="color" id="targetColorPicker" value="#827564" onchange="updateFromPicker('target', this.value)" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0">
+            <!-- 1B. BASE CRUST / EXISTING SKIN UPLOAD & COLOR NAME CARD -->
+            <section class="bg-[#211e1b] border border-amber-700/50 rounded-2xl p-4 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div>
+                        <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">Step 1B • Starting Crust / Skin</span>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-stone-100 mt-1">
+                            Base Skin / Crust Image & Color Name
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="copyTargetPhotoToBase()" title="Use same photo if both swatch and skin are in one image" class="px-2.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-[11px] font-semibold border border-stone-700 transition">
+                            Use Target Photo
+                        </button>
+                        <label class="cursor-pointer px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 text-xs font-extrabold flex items-center gap-1.5 transition shadow-lg shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Upload Base Skin</span>
+                            <input type="file" id="baseImageLoader" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Custom Base Crust Color Name Input -->
+                <div class="mb-3">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-400 mb-1">
+                        Base Crust / Existing Skin Color Name:
+                    </label>
+                    <input type="text" id="baseCustomNameInput" value="Mehendi Green Re-Dye Base" oninput="recalculateAll()" placeholder="e.g., Mehendi Green Lot / EI Semi-Chrome Crust" class="w-full rounded-xl bg-stone-900 border border-stone-700 px-3 py-2 text-xs font-bold text-amber-300 focus:outline-none focus:border-amber-500">
+                </div>
+
+                <!-- Quick Base Crust Preset Chips -->
+                <div class="mb-3">
+                    <div class="text-[10px] font-mono uppercase text-stone-400 mb-1">Quick Starting Base Presets:</div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="setPresetColor('base', '#6B7048', 'Mehendi Green Re-Dye Base', 'redye', 'already_dyed')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-amber-500/40 text-[11px] text-amber-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#6B7048"></span>
+                            <span>Mehendi Base (#6B7048)</span>
+                        </button>
+                        <button onclick="setPresetColor('base', '#878076', 'Green+Black Rounded Trial', 'redye', 'already_dyed')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#878076"></span>
+                            <span>Green+Black Trial (#878076)</span>
+                        </button>
+                        <button onclick="setPresetColor('base', '#C4A482', 'EI Semi-Chrome Wattle Crust', 'suede_ei', 'ei_crust')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#C4A482"></span>
+                            <span>EI Crust (#C4A482)</span>
+                        </button>
+                        <button onclick="setPresetColor('base', '#9A7B64', 'Patchy Warm Brown Skin', 'redye', 'already_dyed')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#9A7B64"></span>
+                            <span>Patchy Warm Lot (#9A7B64)</span>
+                        </button>
+                        <button onclick="setPresetColor('base', '#7A93A6', 'Shaved Chrome Wet-Blue', 'suede_fc', 'wet_blue')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-700 text-[11px] text-stone-200 flex items-center gap-1.5 transition">
+                            <span class="w-3 h-3 rounded-full border border-white/20" style="background:#7A93A6"></span>
+                            <span>Wet-Blue (#7A93A6)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dedicated Base Crust Interactive Canvas -->
+                <div class="relative w-full h-40 rounded-xl overflow-hidden border border-stone-700 bg-stone-950 mb-3">
+                    <canvas id="baseCanvas" class="w-full h-full block"></canvas>
+                    <div class="pointer-events-none absolute bottom-1.5 left-2 right-2 bg-black/75 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] text-stone-300 flex items-center justify-between">
+                        <span>Tap anywhere on Base Skin photo to sample <strong class="text-amber-400">5×5 Nap Average</strong></span>
+                        <span id="baseAutoTradeName" class="font-mono text-amber-300">Mehendi / Herbal Olive</span>
+                    </div>
+                </div>
+
+                <!-- Base Hex & Color Picker Row -->
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-stone-900 border border-stone-800">
+                    <div class="flex items-center gap-2.5">
+                        <div id="baseSwatchBox" class="w-10 h-10 rounded-lg border border-white/20 shadow-inner shrink-0" style="background-color: #6B7048;"></div>
+                        <div>
+                            <div class="text-[10px] uppercase font-mono text-stone-400">Sampled Base Hex</div>
+                            <input type="text" id="baseHexInput" value="#6B7048" onchange="updateFromHexInput('base', this.value)" class="w-28 bg-stone-950 border border-stone-700 rounded px-2 py-0.5 text-xs font-mono font-bold text-stone-100 uppercase">
                         </div>
-                        <div class="flex items-center gap-2.5">
-                            <div id="targetSwatchBox" class="w-12 h-12 rounded-lg border border-white/20 shadow-inner shrink-0" style="background-color: #827564;"></div>
-                            <div class="min-w-0">
-                                <input type="text" id="targetHexInput" value="#827564" onchange="updateFromHexInput('target', this.value)" class="w-full bg-stone-950 border border-stone-700 rounded px-2 py-1 text-xs font-mono font-bold text-stone-100 uppercase">
-                                <div id="targetColorName" class="text-[11px] text-emerald-400 truncate mt-1 font-medium">Warm Mud / Fango</div>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] text-stone-400">Fine-Tune:</span>
+                        <input type="color" id="baseColorPicker" value="#6B7048" onchange="updateFromPicker('base', this.value)" class="w-8 h-8 rounded cursor-pointer bg-transparent border-0">
                     </div>
                 </div>
 
@@ -420,9 +446,9 @@
             <section class="bg-[#211e1b] border border-mud-800 rounded-2xl p-4 sm:p-5 shadow-xl print-card">
                 <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-stone-800">
                     <div>
-                        <span class="text-[11px] font-mono uppercase text-amber-400 font-semibold">Exact Subtractive Dye Combination</span>
+                        <span class="text-[11px] font-mono uppercase text-amber-400 font-semibold" id="jobCardSubtitle">Base: Mehendi Green Re-Dye Base (#6B7048)</span>
                         <h3 class="text-base sm:text-lg font-extrabold text-stone-100 print-text-dark" id="sheetTitle">
-                            Mud Olive Suede — Drum Dyeing Formula
+                            Target: Mud Olive Green - Buyer Master (#827564)
                         </h3>
                     </div>
                     <div class="flex items-center gap-3 bg-stone-900 px-3 py-2 rounded-xl border border-stone-800">
@@ -509,10 +535,10 @@
         // =========================================================================
         // 1. STATE & TANNERY DYE STORE ROOM DATABASE
         // =========================================================================
-        let sampleMode = 'base'; // 'base' or 'target'
         let baseHex = '#6B7048';   // Default: User's Mehendi Green already-dyed skin
         let targetHex = '#827564'; // Default: User's Master Mud Olive Swatch
-        let uploadedImage = null;
+        let targetUploadedImage = null;
+        let baseUploadedImage = null;
 
         // Commercial Leather Acid / 1:2 Metal-Complex Dyes with Subtractive Color Vectors
         const DYE_CATALOG = [
@@ -642,30 +668,53 @@
         }
 
         // =========================================================================
-        // 3. INTERACTIVE DUAL CANVAS (REFERENCE SWATCHES + UPLOADED PHOTO)
+        // 3. DEDICATED TARGET & BASE INTERACTIVE CANVASES (PHOTO UPLOAD + NAP SAMPLER)
         // =========================================================================
-        function initCanvas() {
-            const canvas = document.getElementById('swatchCanvas');
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width || 420;
-            canvas.height = rect.height || 224;
-            drawCanvasContent();
+        function initCanvases() {
+            setupSingleCanvas('targetCanvas', 'target');
+            setupSingleCanvas('baseCanvas', 'base');
 
-            canvas.addEventListener('pointerdown', handleCanvasSample);
-            document.getElementById('imageLoader').addEventListener('change', handleImageUpload);
+            const tLoader = document.getElementById('targetImageLoader');
+            const bLoader = document.getElementById('baseImageLoader');
+            if (tLoader && !tLoader._bound) {
+                tLoader.addEventListener('change', e => handleDedicatedImageUpload(e, 'target'));
+                tLoader._bound = true;
+            }
+            if (bLoader && !bLoader._bound) {
+                bLoader.addEventListener('change', e => handleDedicatedImageUpload(e, 'base'));
+                bLoader._bound = true;
+            }
         }
 
-        function drawCanvasContent() {
-            const canvas = document.getElementById('swatchCanvas');
+        function setupSingleCanvas(canvasId, which) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width || 400;
+            canvas.height = rect.height || 160;
+            drawDedicatedCanvas(which);
+
+            if (!canvas._bound) {
+                canvas.addEventListener('pointerdown', e => sampleFromDedicatedCanvas(e, which));
+                canvas._bound = true;
+            }
+        }
+
+        function drawDedicatedCanvas(which) {
+            const canvasId = which === 'target' ? 'targetCanvas' : 'baseCanvas';
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             const w = canvas.width;
             const h = canvas.height;
+            const img = which === 'target' ? targetUploadedImage : baseUploadedImage;
+            const currentHex = which === 'target' ? targetHex : baseHex;
+            const customName = document.getElementById(which === 'target' ? 'targetCustomNameInput' : 'baseCustomNameInput')?.value || '';
 
             ctx.clearRect(0, 0, w, h);
 
-            if (uploadedImage) {
-                // Draw uploaded image preserving aspect cover
-                const imgRatio = uploadedImage.width / uploadedImage.height;
+            if (img) {
+                const imgRatio = img.width / img.height;
                 const canvasRatio = w / h;
                 let drawW = w, drawH = h, offsetX = 0, offsetY = 0;
                 if (imgRatio > canvasRatio) {
@@ -677,70 +726,100 @@
                     drawH = w / imgRatio;
                     offsetY = -(drawH - h) / 2;
                 }
-                ctx.drawImage(uploadedImage, offsetX, offsetY, drawW, drawH);
+                ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
                 return;
             }
 
-            // Default Interactive Tannery Reference Swatch Board (4 quadrants simulating suede nap)
-            const quadrants = [
-                { x: 0, y: 0, w: w / 2, h: h / 2, color: '#827564', title: 'MASTER MUD SWATCH', sub: '#827564 (Target Fango)' },
-                { x: w / 2, y: 0, w: w / 2, h: h / 2, color: '#6B7048', title: 'MEHENDI GREEN BASE', sub: '#6B7048 (Old Dyed Lot)' },
-                { x: 0, y: h / 2, w: w / 2, h: h / 2, color: '#878076', title: 'GREEN+BLACK TRIAL', sub: '#878076 (Rounded Cut)' },
-                { x: w / 2, y: h / 2, w: w / 2, h: h / 2, color: '#C4A482', title: 'EI SEMI-CHROME CRUST', sub: '#C4A482 (Wattle Base)' }
-            ];
+            // Realistic simulated suede swatch texture when no photo is uploaded yet
+            const rgb = hexToRgb(currentHex);
+            ctx.fillStyle = currentHex;
+            ctx.fillRect(0, 0, w, h);
 
-            quadrants.forEach(q => {
-                const rgb = hexToRgb(q.color);
-                ctx.fillStyle = q.color;
-                ctx.fillRect(q.x, q.y, q.w, q.h);
+            for (let i = 0; i < 1100; i++) {
+                const px = Math.random() * w;
+                const py = Math.random() * h;
+                const delta = (Math.random() - 0.5) * 16;
+                ctx.fillStyle = rgbToHex(rgb.r + delta, rgb.g + delta, rgb.b + delta);
+                ctx.fillRect(px, py, 2, 2);
+            }
 
-                // Simulate realistic suede nap grain texture
-                for (let i = 0; i < 450; i++) {
-                    const px = q.x + Math.random() * q.w;
-                    const py = q.y + Math.random() * q.h;
-                    const delta = (Math.random() - 0.5) * 14;
-                    ctx.fillStyle = rgbToHex(rgb.r + delta, rgb.g + delta, rgb.b + delta);
-                    ctx.fillRect(px, py, 2, 2);
-                }
-
-                // Label Tag
-                ctx.fillStyle = 'rgba(18, 16, 14, 0.78)';
-                ctx.fillRect(q.x + 8, q.y + 8, q.w - 16, 36);
-                ctx.fillStyle = '#f5f5f4';
-                ctx.font = 'bold 11px Inter, sans-serif';
-                ctx.fillText(q.title, q.x + 14, q.y + 23);
-                ctx.fillStyle = '#d6d3d1';
-                ctx.font = '10px JetBrains Mono, monospace';
-                ctx.fillText(q.sub, q.x + 14, q.y + 37);
-            });
-
-            // Divider crosshair lines
-            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h);
-            ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
-            ctx.stroke();
+            // Top overlay badge
+            ctx.fillStyle = 'rgba(18, 16, 14, 0.78)';
+            ctx.fillRect(10, 10, Math.min(w - 20, 310), 42);
+            ctx.fillStyle = which === 'target' ? '#6ee7b7' : '#fcd34d';
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillText(customName.toUpperCase() || (which === 'target' ? 'TARGET SWATCH' : 'BASE CRUST'), 18, 27);
+            ctx.fillStyle = '#e7e5e4';
+            ctx.font = '10px JetBrains Mono, monospace';
+            ctx.fillText(`${currentHex} • Upload photo or tap to sample nap`, 18, 43);
         }
 
-        function handleImageUpload(e) {
+        function handleDedicatedImageUpload(e, which) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const img = new Image();
                 img.onload = function() {
-                    uploadedImage = img;
-                    drawCanvasContent();
-                    showToast('Photo loaded! Tap canvas to sample Base Skin & Target Swatch.');
+                    if (which === 'target') {
+                        targetUploadedImage = img;
+                    } else {
+                        baseUploadedImage = img;
+                    }
+                    drawDedicatedCanvas(which);
+                    // Auto-sample center pixel of uploaded swatch and suggest name if default
+                    autoSampleCenter(which);
+                    showToast(`${which === 'target' ? 'Target Swatch' : 'Base Skin'} photo uploaded! Tap anywhere on it to sample.`);
                 };
                 img.src = evt.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function handleCanvasSample(e) {
-            const canvas = document.getElementById('swatchCanvas');
+        function copyTargetPhotoToBase() {
+            if (!targetUploadedImage) {
+                showToast('Upload a Target Swatch photo first, then tap "Use Target Photo".');
+                return;
+            }
+            baseUploadedImage = targetUploadedImage;
+            drawDedicatedCanvas('base');
+            showToast('Target photo copied to Base canvas! Tap the skin area on the Base canvas.');
+        }
+
+        function autoSampleCenter(which) {
+            const canvas = document.getElementById(which === 'target' ? 'targetCanvas' : 'baseCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const cx = Math.floor(canvas.width / 2);
+            const cy = Math.floor(canvas.height / 2);
+            const hex = sample5x5At(ctx, canvas.width, canvas.height, cx, cy);
+            if (which === 'target') {
+                targetHex = hex;
+            } else {
+                baseHex = hex;
+            }
+            syncColorInputs();
+            recalculateAll();
+        }
+
+        function sample5x5At(ctx, width, height, cx, cy) {
+            let rSum = 0, gSum = 0, bSum = 0, count = 0;
+            for (let dx = -2; dx <= 2; dx++) {
+                for (let dy = -2; dy <= 2; dy++) {
+                    const sx = Math.max(0, Math.min(width - 1, cx + dx));
+                    const sy = Math.max(0, Math.min(height - 1, cy + dy));
+                    const pixel = ctx.getImageData(sx, sy, 1, 1).data;
+                    rSum += pixel[0];
+                    gSum += pixel[1];
+                    bSum += pixel[2];
+                    count++;
+                }
+            }
+            return rgbToHex(rSum / count, gSum / count, bSum / count);
+        }
+
+        function sampleFromDedicatedCanvas(e, which) {
+            const canvas = document.getElementById(which === 'target' ? 'targetCanvas' : 'baseCanvas');
             const ctx = canvas.getContext('2d');
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -749,60 +828,52 @@
             const cx = Math.floor((e.clientX - rect.left) * scaleX);
             const cy = Math.floor((e.clientY - rect.top) * scaleY);
 
-            // Sample 5x5 suede nap area average
-            let rSum = 0, gSum = 0, bSum = 0, count = 0;
-            for (let dx = -2; dx <= 2; dx++) {
-                for (let dy = -2; dy <= 2; dy++) {
-                    const sx = Math.max(0, Math.min(canvas.width - 1, cx + dx));
-                    const sy = Math.max(0, Math.min(canvas.height - 1, cy + dy));
-                    const pixel = ctx.getImageData(sx, sy, 1, 1).data;
-                    rSum += pixel[0];
-                    gSum += pixel[1];
-                    bSum += pixel[2];
-                    count++;
-                }
-            }
-            const sampledHex = rgbToHex(rSum / count, gSum / count, bSum / count);
+            const sampledHex = sample5x5At(ctx, canvas.width, canvas.height, cx, cy);
 
-            // Draw visual ring at sampled spot
-            drawCanvasContent();
-            ctx.strokeStyle = sampleMode === 'base' ? '#f59e0b' : '#10b981';
+            if (which === 'target') {
+                targetHex = sampledHex;
+            } else {
+                baseHex = sampledHex;
+            }
+
+            drawDedicatedCanvas(which);
+            // Draw sampling target ring
+            ctx.strokeStyle = which === 'target' ? '#10b981' : '#f59e0b';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(cx, cy, 10, 0, Math.PI * 2);
             ctx.stroke();
 
-            if (sampleMode === 'base') {
-                baseHex = sampledHex;
-            } else {
-                targetHex = sampledHex;
-            }
             syncColorInputs();
             recalculateAll();
         }
 
-        function setSampleMode(mode) {
-            sampleMode = mode;
-            const baseBtn = document.getElementById('modeBaseBtn');
-            const targetBtn = document.getElementById('modeTargetBtn');
-            const label = document.getElementById('activeModeLabel');
-
-            if (mode === 'base') {
-                baseBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition bg-amber-600 text-stone-950 shadow';
-                targetBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition text-stone-300 hover:text-white';
-                label.textContent = 'Base Skin Color';
-                label.className = 'text-amber-400';
+        function setPresetColor(which, hex, presetName, articleOpt, substrateOpt) {
+            if (which === 'target') {
+                targetHex = hex.toUpperCase();
+                document.getElementById('targetCustomNameInput').value = presetName;
+                targetUploadedImage = null;
             } else {
-                targetBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition bg-emerald-600 text-stone-950 shadow';
-                baseBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition text-stone-300 hover:text-white';
-                label.textContent = 'Target Buyer Swatch';
-                label.className = 'text-emerald-400';
+                baseHex = hex.toUpperCase();
+                document.getElementById('baseCustomNameInput').value = presetName;
+                baseUploadedImage = null;
+                if (articleOpt) document.getElementById('articleSelect').value = articleOpt;
+                if (substrateOpt) document.getElementById('substrateSelect').value = substrateOpt;
             }
+            syncColorInputs();
+            autoSuggestDyePct();
+            recalculateAll();
+            showToast(`Loaded ${presetName} (${hex})`);
         }
 
         function updateFromPicker(which, val) {
-            if (which === 'base') baseHex = val.toUpperCase();
-            else targetHex = val.toUpperCase();
+            if (which === 'base') {
+                baseHex = val.toUpperCase();
+                document.getElementById('baseCustomNameInput').value = describeLeatherShade(baseHex);
+            } else {
+                targetHex = val.toUpperCase();
+                document.getElementById('targetCustomNameInput').value = describeLeatherShade(targetHex);
+            }
             syncColorInputs();
             recalculateAll();
         }
@@ -818,17 +889,6 @@
             }
         }
 
-        function applyScenario(bHex, tHex, article, substrate) {
-            baseHex = bHex;
-            targetHex = tHex;
-            document.getElementById('articleSelect').value = article;
-            document.getElementById('substrateSelect').value = substrate;
-            syncColorInputs();
-            autoSuggestDyePct();
-            recalculateAll();
-            showToast('Scenario loaded & drum formula recalculated!');
-        }
-
         function syncColorInputs() {
             document.getElementById('baseColorPicker').value = baseHex;
             document.getElementById('targetColorPicker').value = targetHex;
@@ -836,10 +896,10 @@
             document.getElementById('targetHexInput').value = targetHex;
             document.getElementById('baseSwatchBox').style.backgroundColor = baseHex;
             document.getElementById('targetSwatchBox').style.backgroundColor = targetHex;
-            document.getElementById('baseDotIndicator').style.backgroundColor = baseHex;
-            document.getElementById('targetDotIndicator').style.backgroundColor = targetHex;
-            document.getElementById('baseColorName').textContent = describeLeatherShade(baseHex);
-            document.getElementById('targetColorName').textContent = describeLeatherShade(targetHex);
+            document.getElementById('baseAutoTradeName').textContent = describeLeatherShade(baseHex);
+            document.getElementById('targetAutoTradeName').textContent = describeLeatherShade(targetHex);
+            drawDedicatedCanvas('target');
+            drawDedicatedCanvas('base');
         }
 
         // =========================================================================
@@ -1150,6 +1210,12 @@
             const tempLabel = waterMode === 'ambient' ? '25–30°C Normal Ambient Water' : '40–50°C Warm Water';
             document.getElementById('batchMetaSummary').textContent = `${lotWeightKg} kg | ${skinCount} Skins | ${tempLabel}`;
 
+            // Update Custom Color Names on Job Sheet Header
+            const targetCustomName = document.getElementById('targetCustomNameInput')?.value || describeLeatherShade(targetHex);
+            const baseCustomName = document.getElementById('baseCustomNameInput')?.value || describeLeatherShade(baseHex);
+            document.getElementById('sheetTitle').textContent = `Target: ${targetCustomName} (${targetHex})`;
+            document.getElementById('jobCardSubtitle').textContent = `Starting Base: ${baseCustomName} (${baseHex})`;
+
             // Build Step-by-Step Drum Stages
             renderDrumStages(lotWeightKg, waterMode, article, substrate);
         }
@@ -1342,9 +1408,13 @@
             const lots = getSavedLots();
             const lotWeightKg = document.getElementById('lotWeightInput').value;
             const skinCount = document.getElementById('skinCountInput').value;
+            const targetCustomName = document.getElementById('targetCustomNameInput').value || describeLeatherShade(targetHex);
+            const baseCustomName = document.getElementById('baseCustomNameInput').value || describeLeatherShade(baseHex);
             const newLot = {
                 id: Date.now(),
                 date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                targetCustomName,
+                baseCustomName,
                 baseHex,
                 targetHex,
                 lotWeightKg,
@@ -1358,28 +1428,29 @@
             lots.unshift(newLot);
             localStorage.setItem('tannery_saved_lots_v2', JSON.stringify(lots.slice(0, 25)));
             updateSavedCount();
-            showToast('Drum Lot Recipe saved to device!');
+            showToast(`Saved "${targetCustomName}" to Shade Library!`);
         }
 
         function loadSavedModal() {
             const lots = getSavedLots();
             const listEl = document.getElementById('savedLotsList');
             if (lots.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-8 text-xs text-stone-400">No saved drum lots yet. Click "Save" next to piece count to store a lot.</div>`;
+                listEl.innerHTML = `<div class="text-center py-8 text-xs text-stone-400">No saved swatches yet. Click "Save Swatch" in the top bar to store a custom shade and recipe.</div>`;
             } else {
                 listEl.innerHTML = lots.map(l => `
                     <div class="p-3 rounded-xl bg-stone-900 border border-stone-800 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <div class="flex">
-                                <span class="w-5 h-8 rounded-l border border-white/20" style="background:${l.baseHex}"></span>
-                                <span class="w-5 h-8 rounded-r border border-white/20" style="background:${l.targetHex}"></span>
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="flex shrink-0">
+                                <span class="w-5 h-9 rounded-l border border-white/20" style="background:${l.baseHex}"></span>
+                                <span class="w-5 h-9 rounded-r border border-white/20" style="background:${l.targetHex}"></span>
                             </div>
-                            <div>
-                                <div class="text-xs font-bold text-stone-100">${l.lotWeightKg} kg (${l.skinCount} pcs) — ${l.totalDyePct}% Dye</div>
-                                <div class="text-[10px] font-mono text-stone-400">${l.date} | ${l.baseHex} → ${l.targetHex}</div>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-emerald-300 truncate">${l.targetCustomName || 'Target Shade'} (${l.targetHex})</div>
+                                <div class="text-[11px] text-amber-300/90 truncate">Base: ${l.baseCustomName || 'Crust'} (${l.baseHex})</div>
+                                <div class="text-[10px] font-mono text-stone-400">${l.lotWeightKg} kg (${l.skinCount} pcs) • ${l.totalDyePct}% Dye • ${l.date}</div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5 shrink-0">
                             <button onclick="restoreSavedLot(${l.id})" class="px-2.5 py-1 rounded bg-amber-600 text-stone-950 font-bold text-xs">Load</button>
                             <button onclick="deleteSavedLot(${l.id})" class="px-2 py-1 rounded bg-stone-800 text-rose-400 text-xs">Del</button>
                         </div>
@@ -1398,6 +1469,8 @@
             if (!lot) return;
             baseHex = lot.baseHex;
             targetHex = lot.targetHex;
+            if (lot.targetCustomName) document.getElementById('targetCustomNameInput').value = lot.targetCustomName;
+            if (lot.baseCustomName) document.getElementById('baseCustomNameInput').value = lot.baseCustomName;
             document.getElementById('lotWeightInput').value = lot.lotWeightKg;
             document.getElementById('skinCountInput').value = lot.skinCount;
             document.getElementById('articleSelect').value = lot.article;
@@ -1408,7 +1481,7 @@
             syncColorInputs();
             recalculateAll();
             closeSavedModal();
-            showToast('Saved drum lot loaded!');
+            showToast(`Loaded "${lot.targetCustomName || 'Saved Lot'}"!`);
         }
 
         function deleteSavedLot(id) {
@@ -1423,6 +1496,8 @@
             const skins = document.getElementById('skinCountInput').value;
             const water = document.getElementById('waterTempSelect').value === 'ambient' ? '25-30°C Normal Water' : '40-50°C Warm Water';
             const totalPct = document.getElementById('totalDyeSlider').value;
+            const targetCustomName = document.getElementById('targetCustomNameInput').value || describeLeatherShade(targetHex);
+            const baseCustomName = document.getElementById('baseCustomNameInput').value || describeLeatherShade(baseHex);
 
             let dyeLines = currentCalculatedFormula.map(d =>
                 `• ${d.shortName}: *${d.grams} g* (${d.ratio}% mix / ${d.pctOnWeight.toFixed(2)}%)`
@@ -1431,9 +1506,10 @@
             const text =
 `*TANNERY DRUM JOB CARD*
 ------------------------
+*Target Shade:* ${targetCustomName} (${targetHex})
+*Starting Base:* ${baseCustomName} (${baseHex})
 *Lot Weight:* ${lotKg} kg (${skins} Skins)
 *Water Mode:* ${water}
-*Color Shift:* Base ${baseHex} → Target ${targetHex}
 *Total Dye Offer:* ${totalPct}%
 
 *EXACT DYE COMBINATION:*
@@ -1468,13 +1544,13 @@ ${dyeLines}
         // Initialize on window load
         window.onload = function() {
             renderDyeStockList();
+            initCanvases();
             syncColorInputs();
-            initCanvas();
             autoSuggestDyePct();
             recalculateAll();
             updateSavedCount();
             window.addEventListener('resize', () => {
-                initCanvas();
+                initCanvases();
             });
         };
     </script>
